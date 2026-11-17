@@ -13,7 +13,7 @@ Anything new either replaces something or takes a slot. The caps live in `lite/e
 - 8 tools
 - port 7778, home `~/.chronos-lite`, zero npm dependencies
 
-Do not add a fourth brain, a size l, a ninth tool or a route outside the six in the edition; make the case in a decision record instead.
+Do not add a fourth brain, a size l, a ninth tool or a route outside the nine in the edition (they are listed in `lite/edition.json` and documented in `docs/runtime-api.md`); make the case in a decision record instead.
 
 ## Lite is carved out of Chronos, not forked
 

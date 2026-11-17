@@ -24,7 +24,19 @@ The l tier and the 27B, Colibri, media and attachments, chats, reading Hephaestu
 
 Both can run on one computer. Lite listens on 7778 and keeps its engine, brains and logs under `~/.chronos-lite`; its brains listen on 7710, 7720 and 7730, a hundred above full Chronos's, so neither takes the other's ports. The card is one: Lite takes and gives back the same `run/gpu.lock` under the full Chronos home (`CHRONOS_HOME`, else `~/.chronos`), with the same rules, so a GPU start in one waits while the other holds the card and never falls back to the CPU on its own.
 
-Its beacon says kind `chronos-lite`, so a Hephaestus looking for full Chronos never picks it by mistake. Its /health says kind `chronos` with `edition: "lite"`, so the existing Chronos wisp driver works when it is pointed at port 7778.
+Its beacon says kind `chronos-lite`, so a Hephaestus looking for full Chronos never picks it by mistake. Its /health says kind `chronos` with `edition: "lite"`, so the existing Chronos wisp driver works when it is pointed at port 7778 (0012).
+
+What was found while carving, and settled:
+
+- **Brain ports.** Taken as they were, Lite's brains would have collided with a running full Chronos on 7610, 7620 and 7630, so they moved up by a hundred (0011).
+- **The lock home.** The brains module keeps the lock in the full Chronos home only when `main()` names it; a test that names only a temp home keeps its lock there, so no test touches the real card (0013).
+- **No ledger.** The bus keeps a ring of the last 2000 events and replays `?since=n` from it; the ledger import is cut, and the hardware readings are streamed but not kept so they cannot push a quest's events out of the ring (0014).
+- **The work folder** is `<home>/work`, never the code folder (0015).
+- **Three more routes** for the slim UI: GET /edition, GET /quests and the static `ui/` (0016). Every route and every event is in `docs/runtime-api.md`.
+
+## How it is tested
+
+`npm test` runs the edition check, then every runtime test. `runtime/e2e.test.mjs` runs the real brains module, runner and server over a stand-in llama-server written where the engine goes, and drives nine cases over HTTP: a size s quest, a size m quest through plan, work and judge, an l downgraded to m, a fall split until depth 2 blocks it, the 25-turn cap, `/events?since=n`, the idempotency key, a foreign Origin's 403, and a second holder of the card lock refused. No real brain is needed; a live run on a real card is stage 5.
 
 ## The stages
 
