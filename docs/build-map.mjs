@@ -18,6 +18,9 @@ export const stages = [
   { name: "Install", short: "install", date: "2026-11-17", time: "20:30",
     text: "Stage 4. scripts/install.sh, POSIX sh, puts the engine (llama.cpp b11669: Vulkan on Linux, Metal on Apple silicon) and the brains (--models none, minimal or all) into ~/.chronos-lite, never with sudo and never anywhere else; --dry-run prints every action and touches nothing. A full Chronos's engine and brain files are used first, in place and read-only, when they are the pinned build and sha256; the rest is downloaded resumably with curl and kept only when its sha256 is the pinned one (decision 0019). runtime/models.mjs finds each file across the two homes and keeps what it checked in reuse.json, so runtime/brains.mjs starts a reused brain where it is without hashing it again, and /health says where each brain runs from. scripts/doctor.mjs reports Node, the engine, each file and how it was checked, the ports, the card lock and the GPU, in words or JSON; scripts/chronos-lite.mjs starts, stops, reads and hires the service over HTTP. Tested on temp homes with fake files and file:// downloads, never the network: 183 tests in 17 files, 182 pass and the live one is opt-in. Version 0.2.0.",
     commits: [] },
+  { name: "The essence", short: "essence", date: "2026-11-17", time: "21:30",
+    text: "Stage 5. The UI is Chronos's own again, cut to what Lite serves, in place of the slim one-page UI (app.css and quests.js go). Chronos's face sits in the oracle dock and reacts to the quests: ui/mood.js works her state out from what stands (held, speaking, thinking, working, listening, done, sleep, idle) and her one-off reactions from the events (a split tears her, a failure hits her, a stop jolts her, a result is said). Four views along the bottom bar: Now (the ask, the steps so far, the quest that runs), Loom (its agents as stones off the Titan, the junction heat in the seams), Record (every quest and its report, and the session's events) and Models (the brains, the sizes, the hardware and the card), carried with the store, the view bar and the backdrop. The white label grows: /edition carries a vocabulary (chronos, the default brand's, or plain, a company's), renamed words and an avatar (Chronos's face, her own frames or a brand's, tinted or not, or a monogram); lite/brands holds Acme and Northwind as samples. The mock's --cycle walks the face through every state, the edition check holds the views and the face's frames and refuses text chunks in a PNG, and scripts/ui.test.mjs tests the brand, the words and the face's states without a browser. A view mounted after the brand was read (the Loom, opened second) takes the brand's name too. The README and docs/ui.md show every view and both rebrands from the mock: 194 tests in 18 files, 193 pass and the live one is opt-in. Version 0.3.0.",
+    commits: [] },
 ];
 
 export const regions = [
@@ -71,6 +74,20 @@ export const nodes = [
     what: "start, stop, status, doctor and ask, over the HTTP API." },
   { id: "install-doc", label: "docs/install.md", sub: "the guide", kind: "doc", region: "project", stage: 3, w: 0.2,
     what: "How to install, what is reused, every option, the doctor and the command." },
+  { id: "ui", label: "ui/app.js", sub: "the UI", kind: "service", region: "project", stage: 4, w: 0.4,
+    what: "Chronos's UI cut to what Lite serves: the header, the dock, four views by the hash, the bar; the brand from /edition." },
+  { id: "face", label: "ui/dock.js", sub: "the face", kind: "service", region: "project", stage: 4, w: 0.3,
+    what: "Chronos's face in the oracle dock (ui/face), her state from ui/mood.js; a brand may tint her or show a monogram." },
+  { id: "views", label: "ui/views", sub: "now, loom, record, models", kind: "service", region: "project", stage: 4, w: 0.3,
+    what: "The ask and the quest that runs; its agents as stones; every quest and its report; the brains, sizes, hardware and card." },
+  { id: "ui-store", label: "ui/store.js", sub: "the page's store", kind: "store", region: "project", stage: 4, w: 0.2,
+    what: "The event stream with since, and what the events add up to: hardware, brains, quests, the log." },
+  { id: "brands", label: "lite/brands", sub: "two samples", kind: "doc", region: "project", stage: 4, w: 0.2,
+    what: "Acme (plain words, the face tinted violet) and Northwind (renamed words, a monogram)." },
+  { id: "mock", label: "scripts/mock-runtime.mjs", sub: "the mock", kind: "script", region: "project", stage: 4, w: 0.2,
+    what: "The service's routes with scripted work, no model and no card; --seed for the shots, --cycle for every face state." },
+  { id: "ui-doc", label: "docs/ui.md", sub: "the UI guide", kind: "doc", region: "project", stage: 4, w: 0.2,
+    what: "The page, the face, the views, the files, the words, how to rebrand and the mock, with the shots." },
 ];
 
 export const edges = [
@@ -98,4 +115,16 @@ export const edges = [
   ["models", "catalogue", "the pinned sha256", 3],
   ["cli", "server", "over HTTP", 3],
   ["install-doc", "installer", "documents", 3],
+  ["server", "ui", "serves ui/ at /", 4],
+  ["ui", "ui-store", "reads", 4],
+  ["ui-store", "server", "/events, /health, /quests", 4],
+  ["ui", "face", "the dock", 4],
+  ["ui", "views", "routes the hash", 4],
+  ["face", "ui-store", "her state", 4],
+  ["views", "ui-store", "reads", 4],
+  ["ui", "brand", "/edition", 4],
+  ["brands", "brand", "samples of", 4],
+  ["mock", "ui", "serves and drives", 4],
+  ["edition-check", "ui", "the views and the frames", 4],
+  ["ui-doc", "ui", "documents", 4],
 ];

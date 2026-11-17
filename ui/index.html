@@ -2,76 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#0f766e">
-  <title>Agents</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#05070b">
+  <title>Chronos Lite</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css">
+  <!-- the service serves ui/ at /: every path here is from the root -->
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/views.css">
   <script>
-    // the chosen mode before the first paint, so a dark choice never flashes light
+    // the chosen mode before the first paint, so a light choice never flashes dark
     try { const m = localStorage.getItem("ui.mode"); if (m === "light" || m === "dark") document.documentElement.dataset.mode = m; } catch {}
   </script>
-  <script type="module" src="app.js"></script>
 </head>
 <body>
-  <a class="skip" href="#ask-text">Skip to the ask box</a>
-  <header class="bar">
-    <div class="brand">
+  <a class="skip" href="#view">skip to the view</a>
+
+  <!-- the header: the brand, and what the service is doing -->
+  <header class="top" id="top">
+    <a class="brand" href="#/now">
       <span class="mark" id="mark" aria-hidden="true"></span>
-      <span class="brand-name" id="brand-name">Agents</span>
-    </div>
-    <div class="bar-status">
-      <span class="health" id="health" role="status" aria-live="polite">
-        <span class="dot" aria-hidden="true"></span><span class="health-text">Connecting</span>
-      </span>
-      <span class="card-state" id="card-state" hidden></span>
-      <button class="icon-btn" id="mode" type="button" aria-label="Colour mode: follows the system"><span aria-hidden="true">◐</span></button>
+      <h1 class="brand-name" id="brand-name">Chronos Lite</h1>
+      <span class="tiny brand-commit" id="brand-version"></span>
+    </a>
+    <span class="top-rest"></span>
+    <div class="facts">
+      <span class="fact" id="top-card" title="the graphics card"><span class="dot dot-asleep" aria-hidden="true"></span><span class="k">card</span><b>—</b></span>
+      <span class="fact" id="top-heat" title="the GPU junction"><span class="k">junction</span><b>—</b></span>
+      <span class="fact" id="top-stream" role="status"><span class="dot dot-asleep" aria-hidden="true"></span><span class="sr">connecting to the event stream</span></span>
+      <button type="button" class="tab-btn" id="mode" aria-label="colour mode"><span aria-hidden="true">◐</span></button>
     </div>
   </header>
 
-  <div class="banner" id="banner" role="alert" hidden>
-    <span id="banner-text"></span>
-    <button class="btn btn-quiet" id="banner-retry" type="button">Try again now</button>
-  </div>
-
-  <main class="layout" id="layout">
-    <section class="col col-side" aria-label="Ask and tasks">
-      <form class="panel ask" id="ask" novalidate>
-        <label class="ask-label" for="ask-text" id="ask-label">What should the agents do?</label>
-        <textarea id="ask-text" name="task" rows="4" required placeholder="Describe the task in plain words." aria-describedby="ask-hint ask-error"></textarea>
-        <fieldset class="sizes">
-          <legend class="sr-only">How thorough</legend>
-          <label class="seg"><input type="radio" name="size" value="auto" checked><span data-word="auto">Auto</span></label>
-          <label class="seg"><input type="radio" name="size" value="s"><span data-word="quick">Quick</span></label>
-          <label class="seg"><input type="radio" name="size" value="m"><span data-word="thorough">Thorough</span></label>
-        </fieldset>
-        <p class="hint" id="ask-hint"></p>
-        <p class="error" id="ask-error" role="alert" hidden></p>
-        <div class="ask-row">
-          <span class="kbd-hint" aria-hidden="true">Ctrl + Enter to send</span>
-          <button class="btn btn-primary" id="send" type="submit">Send</button>
-        </div>
-      </form>
-
-      <section class="panel list-panel" aria-labelledby="tasks-title">
-        <h2 class="panel-title" id="tasks-title">Tasks</h2>
-        <ul class="tasks" id="tasks" aria-busy="true"></ul>
-      </section>
-
-      <section class="panel models" aria-labelledby="models-title">
-        <h2 class="panel-title" id="models-title">Models</h2>
-        <ul class="model-list" id="models"></ul>
-      </section>
+  <!-- the stage: the backdrop under everything, the oracle dock, the view -->
+  <main class="stage" id="stage">
+    <canvas id="backdrop" aria-hidden="true"></canvas>
+    <aside class="dock" id="dock" aria-label="the face and what the service is doing"></aside>
+    <section class="view" id="view" tabindex="-1" aria-label="the view">
+      <div class="banner" id="banner" role="alert" hidden><span id="banner-text"></span><button type="button" class="btn small" id="banner-retry">try again now</button></div>
     </section>
-
-    <section class="col col-main panel detail" id="detail" aria-label="Task detail" tabindex="-1"></section>
+    <p class="toast" id="toast" role="status" hidden></p>
   </main>
 
-  <footer class="foot">
-    <span class="built" id="built-on">built on Chronos</span>
-    <span class="foot-sep" aria-hidden="true">·</span>
-    <span id="version"></span>
-  </footer>
+  <!-- the view bar: now · loom · record · models, and the built-on mark -->
+  <nav class="viewbar" id="viewbar" aria-label="views"></nav>
+
+  <script type="module" src="/app.js"></script>
 </body>
 </html>

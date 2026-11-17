@@ -83,7 +83,27 @@ export function capsOf(edition = {}) {
   };
 }
 
-/** GET /edition: the white label, the version and the caps */
+const VOCABULARIES = ["chronos", "plain"];
+/** a path or address the page may load without leaving this computer */
+const local = (v) => typeof v === "string" && /^(\/(?!\/)|https?:\/\/(localhost|127\.0\.0\.1|\[::1\])[:/])/.test(v.trim());
+
+/** the avatar a brand names, cleaned: kind face (own frames or a local folder, a tint) or kind monogram */
+export function avatarCard(a) {
+  const x = a && typeof a === "object" ? a : {};
+  if (x.kind === "monogram") return { kind: "monogram", frames: null, tint: null };
+  const tint = x.tint === "accent" || (typeof x.tint === "string" && /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(x.tint)) ? x.tint : null;
+  return { kind: "face", frames: local(x.frames) ? x.frames.trim() : null, tint };
+}
+
+/** the words a brand renames: strings only, short, by the page's own keys (ui/brand.js checks the keys) */
+function wordsCard(w) {
+  if (!w || typeof w !== "object") return null;
+  const out = {};
+  for (const [k, v] of Object.entries(w)) if (/^[a-z]{2,20}$/.test(k) && typeof v === "string" && v.trim()) out[k] = v.trim().slice(0, 40);
+  return Object.keys(out).length ? out : null;
+}
+
+/** GET /edition: the white label (name, mark, accent, words, avatar), the version and the caps */
 export function editionCard({ edition = {}, brand = {}, version = null } = {}) {
   return {
     name: brand.name ?? edition.name ?? "Chronos Lite",
@@ -93,6 +113,9 @@ export function editionCard({ edition = {}, brand = {}, version = null } = {}) {
     builtOn: brand.builtOn ?? "built on Chronos",
     version,
     caps: capsOf(edition),
+    vocabulary: VOCABULARIES.includes(brand.vocabulary) ? brand.vocabulary : "plain",
+    words: wordsCard(brand.words),
+    avatar: avatarCard(brand.avatar),
   };
 }
 

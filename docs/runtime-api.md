@@ -93,12 +93,15 @@ The white label, for a header and an about box. Read once at load.
   "accent": null,
   "logo": null,
   "builtOn": "built on Chronos",
-  "version": "0.1.0",
-  "caps": { "brains": 3, "sizes": ["s", "m"], "cards": 1, "turns": 25, "splitDepth": 2, "tools": 8 }
+  "version": "0.3.0",
+  "caps": { "brains": 3, "sizes": ["s", "m"], "cards": 1, "turns": 25, "splitDepth": 2, "tools": 8 },
+  "vocabulary": "chronos",
+  "words": null,
+  "avatar": { "kind": "face", "frames": null, "tint": null }
 }
 ```
 
-`accent` is a CSS colour or `null` (use the default); `logo` is a URL path or `null`. The installer sets them in `lite/brand.json`; the `builtOn` mark must stay visible.
+`accent` is a CSS colour or `null` (use the default); `logo` is a URL path or `null`. `vocabulary` is `chronos` or `plain` (left out of the brand, `plain`); `words` renames any of the page's words, or is `null`; `avatar` is `{kind: "face", frames, tint}` (`frames` a path on this computer or `null`, `tint` `"accent"`, a hex colour or `null`) or `{kind: "monogram"}`. The installer sets them in `lite/brand.json`; the `builtOn` mark must stay visible. [ui.md](ui.md) says what the page does with each.
 
 ## POST /quests
 

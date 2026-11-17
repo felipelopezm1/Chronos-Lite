@@ -121,7 +121,9 @@ test("/capabilities and /edition: the manifest and the white label, from lite/ a
     assert.ok(caps.events.includes("quest.done"));
     assert.equal(caps.hash, (await call("GET", "/health")).body.capabilities.hash);
     const edition = (await call("GET", "/edition")).body;
-    assert.deepEqual(Object.keys(edition).sort(), ["accent", "builtOn", "caps", "logo", "name", "shortName", "version"]);
+    assert.deepEqual(Object.keys(edition).sort(), ["accent", "avatar", "builtOn", "caps", "logo", "name", "shortName", "version", "vocabulary", "words"]);
+    assert.equal(edition.vocabulary, "chronos", "the shipped brand speaks Chronos's words");
+    assert.deepEqual(edition.avatar, { kind: "face", frames: null, tint: null }, "the shipped brand shows Chronos's own face");
     assert.equal(edition.name, "Chronos Lite");
     assert.equal(edition.shortName, "Lite");
     assert.equal(edition.builtOn, "built on Chronos");
@@ -536,4 +538,15 @@ test("/health says stale when the card lock's holder and its engine are gone, an
     await bare.close();
     fs.rmSync(home, { recursive: true, force: true });
   }
+});
+
+test("/edition cleans a rebrand's words and avatar: plain by default, a monogram, a tint, no remote frames", async () => {
+  const { editionCard, avatarCard } = await import("./capabilities.mjs");
+  const card = editionCard({ brand: { name: "Acme Agents", words: { task: " request ", tasks: 7, "bad key": "x" }, avatar: { kind: "face", tint: "accent", frames: "/brand/face" } } });
+  assert.equal(card.vocabulary, "plain", "a brand that names no vocabulary gets the plain words");
+  assert.deepEqual(card.words, { task: "request" });
+  assert.deepEqual(card.avatar, { kind: "face", frames: "/brand/face", tint: "accent" });
+  assert.deepEqual(avatarCard({ kind: "monogram", tint: "#fff" }), { kind: "monogram", frames: null, tint: null });
+  assert.deepEqual(avatarCard({ frames: "https://example.com/face/", tint: "red" }), { kind: "face", frames: null, tint: null }, "frames never come from the network; a tint is a hex or accent");
+  assert.equal(editionCard({ brand: { vocabulary: "chronos" } }).vocabulary, "chronos");
 });

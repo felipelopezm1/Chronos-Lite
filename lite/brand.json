@@ -1,10 +1,13 @@
 {
-  "about": "The white label. Set by the installer for a company, never by a visitor or a user. The service's name in /health and /capabilities comes from here; the built-on mark stays whatever the name.",
+  "about": "The white label. Set by the installer for a company, never by a visitor or a user. The service's name in /health and /capabilities comes from here; the built-on mark stays whatever the name. vocabulary is chronos (quest, titan, promethean, offspring, brain, loom) or plain (task, planner, worker, helper, model); left out, it is plain. avatar is the face in the dock: kind face (Chronos's face; frames is a folder the service serves with the same eight file names, or null for her own; tint is null, accent or a colour) or kind monogram (the logo or the monogram). docs/ui.md says how.",
   "name": "Chronos Lite",
   "shortName": "Lite",
   "accent": null,
   "logo": null,
   "builtOn": "built on Chronos",
-  "builtOnShownIn": ["health", "capabilities"],
+  "builtOnShownIn": ["health", "capabilities", "edition"],
+  "vocabulary": "chronos",
+  "words": null,
+  "avatar": { "kind": "face", "frames": null, "tint": null },
   "setBy": "installer"
 }

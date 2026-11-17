@@ -74,6 +74,15 @@ const CUT_MODULES = /from\s+["']\.\/(bridge|chats|colibri|heph|history|ledger|me
 for (const f of tracked.filter((f) => f.startsWith("runtime/") && f.endsWith(".mjs"))) ok(!CUT_MODULES.test(fs.readFileSync(path.join(here, f), "utf8")), `${f} imports no cut module`);
 ok(!fs.existsSync(path.join(here, "desktop")), "no desktop app");
 
+// ---- the UI: its views are the edition's, every view and avatar named in lite/ is there ----
+const views = fs.existsSync(path.join(here, "ui/views")) ? fs.readdirSync(path.join(here, "ui/views")).filter((f) => f.endsWith(".js")).map((f) => f.replace(/\.js$/, "")).sort() : [];
+ok(same(views, [...edition.ui.views].sort()), `the UI's views are the edition's (${views.join(", ")})`);
+const bar = fs.readFileSync(path.join(here, "ui/viewbar.js"), "utf8");
+for (const v of edition.ui.views) ok(bar.includes(`id: "${v}"`), `the view bar carries ${v}`);
+for (const f of ["a-rest", "a-blink", "a-half", "a-open", "s-rest", "s-half", "s-open", "s-cracks"]) ok(fs.existsSync(path.join(here, `ui/face/frames/${f}.png`)), `the face's frame ${f}.png is there`);
+ok(["chronos", "plain"].includes(brand.vocabulary), "the shipped brand names its vocabulary");
+ok(["face", "monogram"].includes(brand.avatar?.kind), "the shipped brand names its avatar");
+
 // ---- no dependencies ----
 for (const k of ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"]) ok(!pkg[k] || Object.keys(pkg[k]).length === 0, `package.json has no ${k}`);
 ok(edition.dependencies === 0, "the edition says zero dependencies");
@@ -107,6 +116,18 @@ for (const f of tracked) {
   for (const [re, what] of PERSONAL) {
     const m = text.match(re);
     if (m) fails.push(`${f} holds ${what}: ${JSON.stringify(m[0].slice(0, 40))}`);
+  }
+}
+
+// a picture carries no text of its own: a PNG's tEXt, iTXt and zTXt chunks and an eXIf chunk are refused
+for (const f of tracked.filter((x) => /\.png$/i.test(x))) {
+  const buf = fs.readFileSync(path.join(here, f));
+  for (let i = 8; i + 8 <= buf.length; ) {
+    const len = buf.readUInt32BE(i);
+    const type = buf.toString("latin1", i + 4, i + 8);
+    if (["tEXt", "iTXt", "zTXt", "eXIf"].includes(type)) fails.push(`${f} carries a ${type} chunk: ${JSON.stringify(buf.toString("latin1", i + 8, i + 8 + Math.min(len, 60)))}`);
+    if (type === "IEND") break;
+    i += 12 + len;
   }
 }
 

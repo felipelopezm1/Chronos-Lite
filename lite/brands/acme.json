@@ -1,0 +1,10 @@
+{
+  "about": "A sample rebrand for the docs and the mock (node scripts/mock-runtime.mjs --brand lite/brands/acme.json): plain words and Chronos's face tinted to the accent.",
+  "name": "Acme Agents",
+  "shortName": "Acme",
+  "accent": "#7c3aed",
+  "logo": null,
+  "builtOn": "built on Chronos",
+  "vocabulary": "plain",
+  "avatar": { "kind": "face", "frames": null, "tint": "accent" }
+}
