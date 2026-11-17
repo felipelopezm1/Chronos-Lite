@@ -1,0 +1,18 @@
+{
+  "name": "chronos-lite",
+  "version": "0.1.0",
+  "description": "Chronos Lite: a smaller, white-label Chronos. A local-models harness with three brains, two quest sizes and one card, hired over HTTP.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "private": false,
+  "repository": "github:felipelopezm1/Chronos-Lite",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node scripts/check-edition.mjs && node --test runtime/*.test.mjs",
+    "check": "node scripts/check-edition.mjs",
+    "start": "node runtime/server.mjs",
+    "sync:check": "node scripts/sync-check.mjs"
+  }
+}

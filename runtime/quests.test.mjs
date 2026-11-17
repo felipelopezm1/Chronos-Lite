@@ -234,7 +234,7 @@ test("a quest: the titan plans, Prometheans run to the cap, a fall splits into t
     const text = readFileSync(report.trail.file, "utf8");
     assert.match(text, /^---\ntitle: "quest q-1: Count the stars and chart the ocean"\n/);
     assert.match(text, /\*\*Ask:\*\* Count the stars and chart the ocean/);
-    assert.match(text, /\*\*By:\*\* felipe/);
+    assert.match(text, /\*\*By:\*\* someone/);
     assert.ok(text.includes(`- ${fell.id} (promethean, ${WORKER}, depth 0, under ${titan.id}): fell`));
     assert.ok(text.includes(`judged 0.9 pass by ${TALK}: judged by ${TALK}`));
     assert.ok(text.includes("rubric: the currents are named"));
