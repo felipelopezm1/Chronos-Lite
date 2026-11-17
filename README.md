@@ -9,24 +9,32 @@
 | brains | six and five alternates | three: 0.8B, 4B, 9B |
 | quest sizes | s, m, l | s, m (l runs as m) |
 | routes | about 40 | 8 and the UI's files |
-| interface | a full UI and a desktop app | a slim one-page white-label UI (no desktop app) |
+| interface | a full UI and a desktop app | Chronos's UI cut to four views and the face, white-label (no desktop app) |
 | dependencies | none | none |
 
 ## What it looks like
 
-![Chronos Lite in light mode: a thorough task running, its workers and two helpers from a split, the timeline, and the three models](docs/media/readme/lite-light-1440.png)
+![Chronos Lite in light mode on the Now view: the face in the dock says working, a size M quest runs with its Titan, three Prometheans and two Offspring from a split, the steps so far on the left and the three brains ready](docs/media/readme/lite-light-1440.png)
+
+It is Chronos's own UI, cut to what Lite serves. Chronos's face sits in the dock and reacts to the quests: she thinks while one is planned and judged, works while it runs, tears and re-forms on a split, flinches at a failure and says what came back. Four views sit along the bottom: Now (the ask, what is going on, the quest that runs), Loom (its agents as stones), Record (every quest and its report) and Models, called Brains in Chronos's words (the brains, the sizes, the hardware and the card).
+
+Try it with no model at all: `npm run mock`, then open http://127.0.0.1:7779/ (`npm run mock -- --seed --cycle` starts with finished quests and sends a new one every 40 s, so the face goes through every state).
 
 | Dark | Phone |
 | --- | --- |
-| ![Chronos Lite in dark mode, the same running task with its workers, helpers and timeline](docs/media/readme/lite-dark-1440.png) | ![Chronos Lite on a 390 px phone screen: the running task, its four steps and its workers](docs/media/readme/lite-light-390.png) |
+| ![The same Now view in dark mode: the face working, the quest with its split, the steps so far and the three brains](docs/media/readme/lite-dark-1440.png) | ![Chronos Lite on a 390 px phone in dark mode: the face as a strip on top, the ask, and the running quest: the Titan's plan, three steps and the two Offspring from a split](docs/media/readme/lite-phone-390.png) |
+
+| Loom | Record | Models |
+| --- | --- | --- |
+| ![The Loom in dark mode: the Titan as a boulder in the middle, two Prometheans and a third with two Offspring broken off it](docs/media/readme/lite-loom-1440.png) | ![The Record in light mode: five quests, the finished M quest open on its plan, its agents with the split, and the judge's scores](docs/media/readme/lite-record-1440.png) | ![The Brains view in dark mode: the three brains ready, which brain each size uses, the hardware meters and the card in use here](docs/media/readme/lite-models-1440.png) |
 
 ### Any brand
 
 | Acme, light | Northwind, dark |
 | --- | --- |
-| ![The same page rebranded as Acme Agents with a blue accent, in light mode](docs/media/ui/acme-light-1440.png) | ![The same page rebranded as Northwind Assist with a green accent and its own words for tasks, in dark mode](docs/media/ui/northwind-dark-1440.png) |
+| ![The same Now view rebranded as Acme Agents in light mode: a violet accent, Chronos's face tinted violet, and plain words (task, planner, worker, helper, model)](docs/media/readme/acme-light-1440.png) | ![The same Now view rebranded as Northwind Assist in dark mode: a green accent, a monogram in place of the face, and its own words (request, map)](docs/media/readme/northwind-dark-1440.png) |
 
-A company's name, monogram or logo, and accent colour go in [lite/brand.json](lite/brand.json); the page takes them on at load and keeps the small "built on Chronos" mark ([docs/ui.md](docs/ui.md)). These shots are of the mock service (`npm run mock -- --seed`), which plays scripted work and never touches a model.
+A company's name, monogram or logo, accent, words and avatar (Chronos's face, tinted or not, or a monogram) go in [lite/brand.json](lite/brand.json); the page takes them on at load and keeps the small "built on Chronos" mark. The two samples are in [lite/brands](lite/brands), and [docs/ui.md](docs/ui.md) says how. These shots are of the mock service (`npm run mock -- --seed`), which plays scripted work and never touches a model.
 
 ## The caps
 
@@ -82,8 +90,8 @@ A Hephaestus hires it as a wisp: post the quest, follow the events, read the rep
 ```
 runtime/        the service, the runner, the workers, the brains, the model locator, the senses, the card lock
 forge/          brains.json: the three brains and the two tiers
-lite/           edition.json (the caps), brand.json (the white label), carry.json (what came from Chronos)
-ui/             the slim one-page UI: index.html, app.js, app.css, brand.js (the white label)
+lite/           edition.json (the caps), brand.json (the white label), brands/ (two samples), carry.json (what came from Chronos)
+ui/             the UI: app.js, brand.js (the white label), dock.js and face/ (the face), mood.js, store.js, views/ (now, loom, record, models)
 scripts/        install.sh, doctor.mjs, chronos-lite.mjs (the command), check-edition.mjs (npm test), sync-check.mjs, mock-runtime.mjs
 docs/           the plan, the runtime API, the decisions, the build map
 ```

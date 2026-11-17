@@ -19,5 +19,6 @@
 | [0015](0015-work-folder-under-home.md) | The quests work under the home | accepted |
 | [0016](0016-edition-quests-list-and-ui.md) | GET /edition, GET /quests and the UI's files take three slots | accepted |
 | [0017](0017-copyright-line.md) | The licence's copyright line names the Chronos Lite Authors | proposed |
-| [0018](0018-white-label-ui.md) | A white-label UI, written fresh | accepted |
+| [0018](0018-white-label-ui.md) | A white-label UI, written fresh | superseded by 0020 |
 | [0019](0019-reuse-full-chronos-files.md) | Reuse a full Chronos's engine and brains in place, by sha256 | accepted |
+| [0020](0020-the-essence-back.md) | The essence back: the face, the loom and the record, white-label | accepted |

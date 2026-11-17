@@ -1,6 +1,6 @@
 {
   "name": "chronos-lite",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Chronos Lite: a smaller, white-label Chronos. A local-models harness with three brains, two quest sizes and one card, hired over HTTP.",
   "license": "Apache-2.0",
   "type": "module",

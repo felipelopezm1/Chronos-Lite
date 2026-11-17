@@ -1,0 +1,11 @@
+{
+  "about": "A sample rebrand for the docs and the mock (node scripts/mock-runtime.mjs --brand lite/brands/northwind.json): plain words, a few renamed, and a monogram in place of the face.",
+  "name": "Northwind Assist",
+  "shortName": "Northwind",
+  "accent": "#15803d",
+  "logo": null,
+  "builtOn": "built on Chronos",
+  "vocabulary": "plain",
+  "words": { "task": "request", "tasks": "requests", "agents": "assistants", "loom": "map" },
+  "avatar": { "kind": "monogram" }
+}
