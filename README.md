@@ -12,6 +12,22 @@
 | interface | a full UI and a desktop app | none yet (a slim one is planned) |
 | dependencies | none | none |
 
+## What it looks like
+
+![Chronos Lite in light mode: a thorough task running, its workers and two helpers from a split, the timeline, and the three models](docs/media/readme/lite-light-1440.png)
+
+| Dark | Phone |
+| --- | --- |
+| ![Chronos Lite in dark mode, the same running task with its workers, helpers and timeline](docs/media/readme/lite-dark-1440.png) | ![Chronos Lite on a 390 px phone screen: the running task, its four steps and its workers](docs/media/readme/lite-light-390.png) |
+
+### Any brand
+
+| Acme, light | Northwind, dark |
+| --- | --- |
+| ![The same page rebranded as Acme Agents with a blue accent, in light mode](docs/media/ui/acme-light-1440.png) | ![The same page rebranded as Northwind Assist with a green accent and its own words for tasks, in dark mode](docs/media/ui/northwind-dark-1440.png) |
+
+A company's name, monogram or logo, and accent colour go in [lite/brand.json](lite/brand.json); the page takes them on at load and keeps the small "built on Chronos" mark ([docs/ui.md](docs/ui.md)). These shots are of the mock service (`npm run mock -- --seed`), which plays scripted work and never touches a model.
+
 ## The caps
 
 Held in [lite/edition.json](lite/edition.json) and checked by `npm test`: 3 brains, sizes s and m, 1 card, 25 brain turns a quest, a fall split at most 2 deep, 8 tools. Anything new replaces something or takes a slot.
