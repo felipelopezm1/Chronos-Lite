@@ -9,7 +9,7 @@
 | brains | six and five alternates | three: 0.8B, 4B, 9B |
 | quest sizes | s, m, l | s, m (l runs as m) |
 | routes | about 40 | 8 and the UI's files |
-| interface | a full UI and a desktop app | none yet (a slim one is planned) |
+| interface | a full UI and a desktop app | a slim one-page white-label UI (no desktop app) |
 | dependencies | none | none |
 
 ## What it looks like
@@ -83,6 +83,7 @@ A Hephaestus hires it as a wisp: post the quest, follow the events, read the rep
 runtime/        the service, the runner, the workers, the brains, the model locator, the senses, the card lock
 forge/          brains.json: the three brains and the two tiers
 lite/           edition.json (the caps), brand.json (the white label), carry.json (what came from Chronos)
+ui/             the slim one-page UI: index.html, app.js, app.css, brand.js (the white label)
 scripts/        install.sh, doctor.mjs, chronos-lite.mjs (the command), check-edition.mjs (npm test), sync-check.mjs, mock-runtime.mjs
 docs/           the plan, the runtime API, the decisions, the build map
 ```
