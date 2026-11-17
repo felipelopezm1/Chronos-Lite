@@ -4,7 +4,7 @@
 
 ## The choice
 
-Chronos Lite lives in its own public repository (github.com/felipelopezm1/Chronos-Lite), not as a branch or an edition flag of Chronos. `lite/carry.json` sorts every Chronos file into keep, reuse, rewrite or never; `npm run sync:check` says when a kept file has drifted.
+Chronos Lite lives in its own public repository (Chronos-Lite on GitHub), not as a branch or an edition flag of Chronos. `lite/carry.json` sorts every Chronos file into keep, reuse, rewrite or never; `npm run sync:check` says when a kept file has drifted.
 
 ## Why
 

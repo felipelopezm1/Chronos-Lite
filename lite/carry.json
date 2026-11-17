@@ -2,7 +2,7 @@
   "version": 1,
   "about": "Every file of chronos's runtime/, forge/, scripts/, ui/, desktop/ and docs/, sorted. keep: copied as it is (scripts/sync-check.mjs says when it drifts). reuse: copied, then trimmed here. rewrite: written fresh in Lite. never: a cut part or personal data; it does not ship.",
   "source": {
-    "repo": "github.com/felipelopezm1/chronos",
+    "repo": "chronos (the full edition)",
     "local": "../chronos",
     "env": "CHRONOS_SRC"
   },

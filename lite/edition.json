@@ -5,10 +5,21 @@
   "about": "What Chronos Lite is, as numbers the runtime holds and scripts/check-edition.mjs asserts. Lite means smaller, not the light theme: anything new either replaces something or takes a slot under these caps.",
   "brains": {
     "max": 3,
-    "ids": ["qwen3.5-0.8b", "qwen3.5-4b", "qwen3.5-9b"],
-    "roles": { "offspring": "qwen3.5-0.8b", "promethean": "qwen3.5-4b", "titan": "qwen3.5-9b" }
+    "ids": [
+      "qwen3.5-0.8b",
+      "qwen3.5-4b",
+      "qwen3.5-9b"
+    ],
+    "roles": {
+      "offspring": "qwen3.5-0.8b",
+      "promethean": "qwen3.5-4b",
+      "titan": "qwen3.5-9b"
+    }
   },
-  "sizes": ["s", "m"],
+  "sizes": [
+    "s",
+    "m"
+  ],
   "sizeL": "downgraded to m with a note, never refused outright",
   "cards": 1,
   "cardLock": "the full Chronos home's run/gpu.lock (CHRONOS_HOME, else ~/.chronos): shared with every Chronos on this computer",
@@ -18,13 +29,34 @@
   },
   "tools": {
     "max": 8,
-    "names": ["read_file", "write_file", "edit_file", "grep", "glob", "bash", "fetch", "remember"]
+    "names": [
+      "read_file",
+      "write_file",
+      "edit_file",
+      "grep",
+      "glob",
+      "bash",
+      "fetch",
+      "remember"
+    ]
   },
   "service": {
     "host": "127.0.0.1",
     "port": 7778,
     "home": "~/.chronos-lite",
-    "routes": ["GET /health", "GET /capabilities", "GET /events", "POST /quests", "GET /quests/:id", "POST /quests/:id/stop"]
+    "routes": [
+      "GET /health",
+      "GET /capabilities",
+      "GET /edition",
+      "GET /events",
+      "GET /quests",
+      "POST /quests",
+      "GET /quests/:id",
+      "POST /quests/:id/stop",
+      "GET /"
+    ],
+    "workdir": "<home>/work (CHRONOS_LITE_WORKDIR)",
+    "ui": "static files under ui/ at /, when ui/ is there"
   },
   "hiredBy": "Hephaestus, as a wisp only: POST /quests, then GET /events?since=n replayed from an in-memory ring",
   "dependencies": 0,
