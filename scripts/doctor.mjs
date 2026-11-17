@@ -21,8 +21,8 @@ import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { brainsOfSet, filesOf, findEngine, findFile, planInstall, readRecord, writeRecord } from "../runtime/models.mjs";
-import { cardHome, chronosHome, liteHome, platformOf } from "../runtime/platform.mjs";
-import { describeHolder, readCardLock } from "../runtime/cardlock.mjs";
+import { cardHome, cardState, chronosHome, liteHome, platformOf } from "../runtime/platform.mjs";
+import { readCardLock } from "../runtime/cardlock.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const NODE_MIN = 22;
@@ -119,7 +119,7 @@ export async function examine({ catalogue, home, reuseHome, quick = false, key =
     engine: { found: !!e.where, where: e.where, dir: e.dir, build: e.build ?? null, want: engineCat.build, why: e.why ?? null },
     brains,
     ports: portRows,
-    card: { lock, holder: lock ? describeHolder(lock) : null },
+    card: cardState(lock),
     gpu,
   };
 }
@@ -139,7 +139,8 @@ function report(d) {
     }
   }
   for (const p of d.ports) lines.push(`${mark(p.free || /Lite/.test(p.holder ?? ""))}port ${p.port} (${p.what}) ${p.free ? "free" : `in use${p.holder ? ` by ${p.holder}` : ""}`}`);
-  lines.push(`${mark(!d.card.lock)}card lock ${d.homes.cardLock}/run/gpu.lock: ${d.card.lock ? `held by ${d.card.holder}` : "free"}`);
+  const card = d.card.state === "held" ? `held by ${d.card.holder}` : d.card.state === "stale" ? `stale: ${d.card.holder}, nothing of it runs; Lite takes it over at its first GPU start` : "free";
+  lines.push(`${mark(d.card.state !== "held")}card lock ${d.homes.cardLock}/run/gpu.lock: ${card}`);
   if (d.gpu) lines.push(`${mark(d.gpu.vramMiB > 0)}gpu ${d.gpu.name ?? "none seen"}${d.gpu.vramMiB ? `, ${d.gpu.vramMiB} MiB` : ""}${d.gpu.backend ? `, engine backend ${d.gpu.backend}` : ""}${d.gpu.vramMiB ? "" : ": brains run on the CPU"}`);
   lines.push(d.ok ? "ready: npm start (or chronos-lite start)" : "not ready: run scripts/install.sh (scripts/install.sh --dry-run shows what it would do)");
   return lines.join("\n");

@@ -35,7 +35,7 @@ Who this is and how it stands. Cheap enough to poll every few seconds.
   ],
   "hardware": { "vram": { "totalMiB": 12288, "usedMiB": 900, "freeMiB": 11388, "card": "..." }, "ram": { "totalMiB": 30000, "availableMiB": 20000 }, "cpu": { "threads": 16, "load1": 0.4 }, "heat": { "junctionC": 55, "edgeC": 48, "critC": 100, "cpuC": 60, "hot": false }, "at": 1763380000000 },
   "governor": { "runs": true, "why": null },
-  "card": { "lock": null, "mine": false },
+  "card": { "lock": null, "mine": false, "stale": false },
   "quests": { "queued": 0, "running": 0 },
   "sizes": {
     "s": { "ok": false, "tier": { "titan": null, "promethean": "qwen3.5-4b", "offspring": "qwen3.5-0.8b", "judge": "qwen3.5-4b" }, "tokens": 16000, "seconds": 900, "maxTasks": 1, "note": "...", "present": { "qwen3.5-4b": false, "qwen3.5-0.8b": false }, "fallsTo": null, "why": "the Promethean brain qwen3.5-4b is not on disk: no smaller size can run either" },
@@ -49,7 +49,7 @@ Who this is and how it stands. Cheap enough to poll every few seconds.
 - `kind` is `"chronos"` so a caller written for full Chronos hires Lite unchanged; `edition: "lite"` says which it is.
 - `brains[].status` is `idle`, `waiting` (for the card), `loading`, `ready` or `failed`. `present` is whether its file is on disk; `where` is whose copy it runs from: `"lite"` (Lite's home), `"chronos"` (a full Chronos's, reused in place because the installer found it to be the pinned file, docs/install.md) or `null` when it is not there.
 - `hardware` is `null` where the hardware sense cannot read this system; any of its numbers may be `null`.
-- `card.lock` is the card lock file as it is now: `null` when the card is free, else `{ pid, port, brain, since, host, what, id, engines }`; `mine` is true when this process holds it. `what` is `"chronos-lite"` for Lite.
+- `card.lock` is the card lock file as it is now: `null` when the card is free, else `{ pid, port, brain, since, host, what, id, engines }`; `mine` is true when this process holds it. `what` is `"chronos-lite"` for Lite. `stale` is true when the lock is another process's and nothing of it runs any more (its process and its engines are gone, on this host): the card is free in practice, and the first GPU start takes the lock over.
 - `sizes` holds `s` and `m` only. A size with `ok: false` has `why` and `fallsTo` (the size a quest of it runs as, or `null`).
 - `missing` appears only when a module could not load.
 
@@ -75,7 +75,7 @@ What this edition can do. Fetch it again when `/health`'s `capabilities.hash` ch
   "tools": ["read_file", "write_file", "edit_file", "grep", "glob", "bash", "fetch", "remember"],
   "events": ["quest.queued", "quest.started", "..."],
   "brains": [{ "id": "qwen3.5-9b", "role": "talk", "slot": "talk", "device": null, "present": false, "status": "idle" }],
-  "card": { "lock": null, "mine": false },
+  "card": { "lock": null, "mine": false, "stale": false },
   "governor": { "runs": true, "why": null },
   "cut": ["l-tier", "27B", "..."],
   "hiredBy": "Hephaestus, as a wisp only: ..."

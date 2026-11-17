@@ -203,6 +203,16 @@ test("doctor --json: node, the engine, each file where it was found and how it w
     assert.deepEqual(d.ports.map((p) => p.port), [7778, 7710, 7720, 7730]);
     assert.equal(d.homes.cardLock, w.chronos);
     assert.equal(d.card.lock, null);
+    assert.equal(d.card.state, "free");
+    // a full Chronos that died holding the card: the doctor calls it stale, not held, and the run still counts as ready
+    const gone = spawnSync(process.execPath, ["-e", "0"]).pid;
+    fs.mkdirSync(path.join(w.chronos, "run"), { recursive: true });
+    fs.writeFileSync(path.join(w.chronos, "run", "gpu.lock"), JSON.stringify({ pid: gone, port: 7777, brain: "qwen3.5-4b", host: os.hostname(), id: "dead", engines: [gone] }));
+    const staleRun = spawnSync(process.execPath, [path.join(ROOT, "scripts", "doctor.mjs"), "--quick", "--catalogue", w.catalogue], { env: w.env, encoding: "utf8" });
+    assert.match(staleRun.stdout, /ok {2}card lock .*: stale: qwen3\.5-4b of the Chronos on port 7777 \(pid \d+\), nothing of it runs; Lite takes it over at its first GPU start/);
+    fs.writeFileSync(path.join(w.chronos, "run", "gpu.lock"), JSON.stringify({ pid: process.pid, port: 7777, brain: "qwen3.5-4b", host: os.hostname(), id: "live", engines: [] }));
+    const heldRun = spawnSync(process.execPath, [path.join(ROOT, "scripts", "doctor.mjs"), "--quick", "--catalogue", w.catalogue], { env: w.env, encoding: "utf8" });
+    assert.match(heldRun.stdout, /-- {2}card lock .*: held by qwen3\.5-4b of the Chronos on port 7777/);
     const human = spawnSync(process.execPath, [path.join(ROOT, "scripts", "doctor.mjs"), "--quick", "--no-reuse", "--catalogue", w.catalogue], { env: w.env, encoding: "utf8" });
     assert.equal(human.status, 1, "with reuse off nothing is here: not ready");
     assert.match(human.stdout, /engine missing/);

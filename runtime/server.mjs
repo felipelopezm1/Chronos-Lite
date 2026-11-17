@@ -32,7 +32,7 @@ import { Bus, corsHeaders, trustedOrigin } from "./bus.mjs";
 import { readCommit, startBeacon } from "./beacon.mjs";
 import { createCapabilities, editionCard, readEdition } from "./capabilities.mjs";
 import { readCardLock } from "./cardlock.mjs";
-import { cardHome, chronosHome, liteHome } from "./platform.mjs";
+import { cardHome, cardState, chronosHome, liteHome } from "./platform.mjs";
 import { describeSizes, normalSize, parseSizeMarker, resolveTier } from "./sizes.mjs";
 import { governorCan } from "./throttle.mjs";
 import { createRunner } from "./quests.mjs";
@@ -288,12 +288,14 @@ export function createServer({ root = ROOT, home = null, lockHome = null, port =
   const name = info.brand.name ?? "Chronos Lite";
   let governorHere = null;
   const governorNow = () => brains?.governorStatus?.() ?? (governorHere ??= governorCan());
+  // stale: a lock nothing of which runs (its holder died without giving it back); the first GPU start takes it over
+  const withStale = (c) => ({ ...c, stale: !!c.lock && !c.mine && cardState(c.lock).state === "stale" });
   const cardNow = () => {
-    if (brains?.cardStatus) return brains.cardStatus();
+    if (brains?.cardStatus) return withStale(brains.cardStatus());
     try {
-      return { lock: readCardLock(lockHome ?? home ?? cardHome()), mine: false };
+      return withStale({ lock: readCardLock(lockHome ?? home ?? cardHome()), mine: false });
     } catch {
-      return { lock: null, mine: false };
+      return { lock: null, mine: false, stale: false };
     }
   };
 

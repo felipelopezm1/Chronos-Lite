@@ -2,11 +2,13 @@
 // Chronos Lite home and the shared card lock's home are, what the engine's file is called, which release asset is
 // this machine's, whether a process can be paused, and which tools unpack an
 // archive. Everything here is pure or reads only the environment, so the
-// tests can ask for any system from any system.
+// tests can ask for any system from any system (cardState asks whether a pid is
+// alive, and takes the probe as an argument for the tests).
 
 import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { describeHolder, pidAlive } from "./cardlock.mjs";
 
 /** the platform keys llama.cpp publishes a release build for (forge/brains.json engine.assets) */
 export const KEYS = ["linux-x64", "linux-arm64", "darwin-arm64", "darwin-x64", "win32-x64", "win32-arm64"];
@@ -97,4 +99,16 @@ export function defaultBackend(key) {
   if (key === "darwin-arm64") return "metal";
   if (key === "darwin-x64") return "none";
   return "vulkan";
+}
+
+/**
+ * The card lock in words, judged by the card lock's own rule (runtime/cardlock.mjs): a lock from this host is stale
+ * when neither its process nor any of its engines is alive, and a lock that cannot be read holds nothing; either is
+ * taken over at Lite's first GPU start. A lock from another host is never judged from here.
+ */
+export function cardState(lock, { alive = pidAlive, host = os.hostname() } = {}) {
+  if (!lock) return { lock: null, state: "free", holder: null };
+  if (lock.corrupt) return { lock, state: "stale", holder: describeHolder(lock, { alive }) };
+  const live = (lock.host && lock.host !== host) || alive(lock.pid) || (lock.engines ?? []).some((p) => alive(p));
+  return { lock, state: live ? "held" : "stale", holder: describeHolder(lock, { alive }) };
 }
