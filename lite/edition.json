@@ -1,7 +1,7 @@
 {
   "edition": "lite",
   "name": "Chronos Lite",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "about": "What Chronos Lite is, as numbers the runtime holds and scripts/check-edition.mjs asserts. Lite means smaller, not the light theme: anything new either replaces something or takes a slot under these caps.",
   "brains": {
     "max": 3,

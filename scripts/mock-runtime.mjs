@@ -275,7 +275,7 @@ function health() {
     brains: BRAINS.map((b) => ({ ...b })),
     governor: { runs: false, why: "a mock: nothing to govern" },
     hardware: { vram: { usedMiB: BRAINS.reduce((s, b) => s + (b.status === "ready" ? { titan: 6100, promethean: 3300, offspring: 0 }[b.role] : 0), 300), totalMiB: 12272 } },
-    card: { lock: busy ? { pid: process.pid, port: PORT, brain: current.size === "m" ? "qwen3.5-9b" : "qwen3.5-4b", since: current.at, host: "localhost", what: "chronos-lite", id: "mock", engines: [] } : null, mine: Boolean(busy) },
+    card: { lock: busy ? { pid: process.pid, port: PORT, brain: current.size === "m" ? "qwen3.5-9b" : "qwen3.5-4b", since: current.at, host: "localhost", what: "chronos-lite", id: "mock", engines: [] } : null, mine: Boolean(busy), stale: false },
     quests: counts(),
     sizes: { s: { ok: true, tier: TIER.s, tokens: 16000, seconds: 900, maxTasks: 1, note: "no plan: one worker on the 4B" }, m: { ok: true, tier: TIER.m, tokens: 64000, seconds: 2700, maxTasks: 3, note: "the 9B plans and judges" } },
     capabilities: { hash: "mock", url: "/capabilities" },

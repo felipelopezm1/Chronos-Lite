@@ -84,8 +84,8 @@ function renderHealth() {
   if (!c || state.down) card.hidden = true;
   else {
     card.hidden = false;
-    card.textContent = !c.lock ? "Graphics card free" : c.mine ? "Graphics card in use here" : "Graphics card busy elsewhere";
-    card.title = c.lock && !c.mine ? "Another service on this computer holds the card; work waits until it is free." : "";
+    card.textContent = !c.lock || c.stale ? "Graphics card free" : c.mine ? "Graphics card in use here" : "Graphics card busy elsewhere";
+    card.title = c.stale ? "A service that has stopped left its claim on the card; the next quest clears it." : c.lock && !c.mine ? "Another service on this computer holds the card; work waits until it is free." : "";
   }
 
   const banner = $("banner");

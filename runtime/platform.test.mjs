@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { KEYS, canPause, cardHome, chronosHome, liteHome, defaultBackend, engineFile, platformOf, systemTar, unpackPlan } from "./platform.mjs";
+import { KEYS, canPause, cardHome, cardState, chronosHome, liteHome, defaultBackend, engineFile, platformOf, systemTar, unpackPlan } from "./platform.mjs";
 
 test("the platform key is the system and the processor, and this machine has one", () => {
   assert.deepEqual(platformOf("linux", "x64"), { os: "linux", arch: "x64", key: "linux-x64" });
@@ -59,4 +59,20 @@ test("Lite keeps its own home, and the card lock stays in the full Chronos home"
   // CHRONOS_LITE_HOME never moves the lock; CHRONOS_HOME does, as it does for full Chronos
   assert.equal(cardHome({ env: { CHRONOS_LITE_HOME: "/x" }, platform: "linux", homedir: "/h" }), "/h/.chronos");
   assert.equal(cardHome({ env: { CHRONOS_HOME: "/c" }, platform: "linux", homedir: "/h" }), "/c");
+});
+
+test("cardState judges the card lock by the lock's own rule: dead holder stale, live holder or engine held, another host never judged", () => {
+  const alive = (pid) => [11, 22].includes(pid);
+  const host = "here";
+  assert.deepEqual(cardState(null, { alive, host }), { lock: null, state: "free", holder: null });
+  // the shape a full Chronos left behind when it died: its pid and its engine both gone
+  const dead = { pid: 38, port: 7777, brain: "qwen3.5-4b", host, what: "server.mjs", id: "38-x", engines: [39] };
+  const s = cardState(dead, { alive, host });
+  assert.equal(s.state, "stale");
+  assert.match(s.holder, /qwen3\.5-4b of the Chronos on port 7777 \(pid 38\b/);
+  assert.equal(cardState({ ...dead, pid: 11 }, { alive, host }).state, "held", "a live holder holds");
+  assert.equal(cardState({ ...dead, engines: [22] }, { alive, host }).state, "held", "a dead runtime whose engine still runs holds");
+  assert.equal(cardState({ ...dead, host: "elsewhere" }, { alive, host }).state, "held", "another host's lock is never judged from here");
+  assert.equal(cardState({ ...dead, host: undefined }, { alive, host }).state, "stale", "an old lock with no host is judged here");
+  assert.equal(cardState({ corrupt: true }, { alive, host }).state, "stale", "an unreadable lock holds nothing");
 });

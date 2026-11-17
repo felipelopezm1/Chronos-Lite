@@ -411,7 +411,7 @@ test("Brains: a stale lock of a dead runtime is taken over at the start, and dis
   }
 });
 
-test("GET /health carries card {lock, mine}", async () => {
+test("GET /health carries card {lock, mine, stale}", async () => {
   const home = tempHome();
   const p = pids(5001);
   const brains = new Brains({ root: ROOT, home, bus: { emit() {} }, readJunction: () => NaN, hasCard: true, port: 7795 });
@@ -419,7 +419,7 @@ test("GET /health carries card {lock, mine}", async () => {
   const port = await app.listen();
   const health = async () => (await (await fetch(`http://127.0.0.1:${port}/health`)).json()).card;
   try {
-    assert.deepEqual(await health(), { lock: null, mine: false });
+    assert.deepEqual(await health(), { lock: null, mine: false, stale: false });
     const other = createCardLock({ home, pid: 5001, port: 7778, alive: p.alive });
     other.tryTake("qwen3.8-27b");
     const seen = await health();
@@ -442,7 +442,7 @@ test("GET /health carries card {lock, mine}", async () => {
   const bare = createServer({ root: ROOT, home: home2, port: 0, bus: new Bus(), brains: { list: () => [], stopAll: async () => {} }, hardware: { readHardware: () => null }, setup: null });
   const port2 = await bare.listen();
   try {
-    assert.deepEqual((await (await fetch(`http://127.0.0.1:${port2}/health`)).json()).card, { lock: null, mine: false });
+    assert.deepEqual((await (await fetch(`http://127.0.0.1:${port2}/health`)).json()).card, { lock: null, mine: false, stale: false });
     createCardLock({ home: home2, pid: 5001, port: 7778, alive: p.alive }).tryTake("qwen3.8-27b");
     const card = (await (await fetch(`http://127.0.0.1:${port2}/health`)).json()).card;
     assert.equal(card.lock.port, 7778);

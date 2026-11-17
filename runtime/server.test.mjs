@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import http from "node:http";
 import os from "node:os";
@@ -509,5 +510,30 @@ test("the real runtime, started as a program on a throwaway home: 7778's twin on
       await exited;
     }
     fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("/health says stale when the card lock's holder and its engine are gone, and not while the holder lives", async () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "lite-stale-"));
+  // a pid that was alive a moment ago and is not now, as a full Chronos killed without giving the card back
+  const gone = spawnSync(process.execPath, ["-e", "0"]).pid;
+  const lockFile = path.join(home, "run", "gpu.lock");
+  fs.mkdirSync(path.dirname(lockFile), { recursive: true });
+  const bare = createServer({ root, home, port: 0, bus: new Bus(), brains: { list: () => [], stopAll: async () => {} }, hardware: { readHardware: () => null }, setup: null });
+  const port = await bare.listen();
+  const card = async () => (await (await fetch(`http://127.0.0.1:${port}/health`)).json()).card;
+  try {
+    fs.writeFileSync(lockFile, JSON.stringify({ pid: gone, port: 7777, brain: "qwen3.5-4b", host: os.hostname(), what: "server.mjs", id: `${gone}-dead`, engines: [gone] }));
+    const stale = await card();
+    assert.equal(stale.lock.pid, gone);
+    assert.equal(stale.mine, false);
+    assert.equal(stale.stale, true);
+    fs.writeFileSync(lockFile, JSON.stringify({ pid: process.pid, port: 7777, brain: "qwen3.5-4b", host: os.hostname(), id: "live", engines: [] }));
+    assert.equal((await card()).stale, false, "a live holder is never called stale");
+    fs.writeFileSync(lockFile, JSON.stringify({ pid: gone, port: 7777, host: "elsewhere", id: "far", engines: [] }));
+    assert.equal((await card()).stale, false, "another host's lock is never judged from here");
+  } finally {
+    await bare.close();
+    fs.rmSync(home, { recursive: true, force: true });
   }
 });
