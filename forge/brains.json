@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "edition": "lite",
+  "home": "~/.chronos-lite",
+  "about": "The three brains of Chronos Lite, taken from Chronos's forge/brains.json with their files and sha256, and the two tiers they make. Ports are Chronos's plus 100 (7710, 7720, 7730) so the two never collide. The card lock is not under this home: it is the full Chronos home's run/gpu.lock (docs/decisions/0009).",
+  "engine": {
+    "id": "llama.cpp",
+    "build": "b11669",
+    "backend": "vulkan",
+    "fallback": "ollama",
+    "assets": {
+      "linux-x64": {
+        "name": "llama-b11669-bin-ubuntu-vulkan-x64.tar.gz",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-ubuntu-vulkan-x64.tar.gz",
+        "bytes": 30497889,
+        "sha256": "e8709e5ba6c1b093dea7f3de57f4aba842f9a188fba6b465782d65d6fcfa4d9f",
+        "format": "tar.gz",
+        "backend": "vulkan",
+        "unpackedBytes": 86788606
+      },
+      "linux-arm64": {
+        "name": "llama-b11669-bin-ubuntu-vulkan-arm64.tar.gz",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-ubuntu-vulkan-arm64.tar.gz",
+        "bytes": 24187561,
+        "sha256": "d283522e479c0d532e3a04d715dd852ffb2d95925caa6d41ef2ba53a65e46a51",
+        "format": "tar.gz",
+        "backend": "vulkan"
+      },
+      "darwin-arm64": {
+        "name": "llama-b11669-bin-macos-arm64.tar.gz",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-macos-arm64.tar.gz",
+        "bytes": 12191582,
+        "sha256": "dbed55493d72bc1ba2babc8770d669c2289b5bc4ee9fb2a4dfc158d45b7d13fd",
+        "format": "tar.gz",
+        "backend": "metal",
+        "unpackedBytes": 32243798
+      },
+      "darwin-x64": {
+        "name": "llama-b11669-bin-macos-x64.tar.gz",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-macos-x64.tar.gz",
+        "bytes": 11677404,
+        "sha256": "cab28238d78158109b48deb27b05d50e0dcef56275d2e76da9ca8281526c7532",
+        "format": "tar.gz",
+        "backend": "none"
+      },
+      "win32-x64": {
+        "name": "llama-b11669-bin-win-vulkan-x64.zip",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-win-vulkan-x64.zip",
+        "bytes": 32182350,
+        "sha256": "2c07574e7bde71321cb785282b20cc821e951132149eeceeea32ddebdbf0598e",
+        "format": "zip",
+        "backend": "vulkan",
+        "unpackedBytes": 91423005
+      },
+      "win32-arm64": {
+        "name": "llama-b11669-bin-win-vulkan-arm64.zip",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-win-vulkan-arm64.zip",
+        "bytes": 24817965,
+        "sha256": "963d3b185362cadca3de643409f916a5ce95dd0f7fd8617ba9ee5d8833ac1ef3",
+        "format": "zip",
+        "backend": "vulkan"
+      }
+    },
+    "assetsNote": "The release file of llama.cpp b11669 for each platform key (runtime/platform.mjs), as GitHub lists them for that tag on 2026-11-13: name, size and sha256 are the release's own (the API's digest); setup (runtime/setup.mjs) downloads the one for this machine, checks the sha256, unpacks it by its format (tar for tar.gz; tar on macOS and Windows and unzip on Linux for zip) and takes the folder that holds llama-server as <home>/bin/llama. Vulkan for Linux and Windows, Metal for macOS on Apple silicon; the macOS x64 build has no GPU backend (backend none: brains run on the CPU there). Seen in the archives themselves: the Linux x64 and macOS arm64 tar.gz hold one top folder llama-b11669/, the Windows x64 zip is flat; unpackedBytes is the sum of their listings. The arm64 Linux, x64 macOS and arm64 Windows files were not opened. A platform key that is not here has no build Chronos fetches: GET /setup says so in engine.why and models can still be downloaded.",
+    "env": {
+      "RADV_PERFTEST": "nogttspill"
+    },
+    "commonArgs": [
+      "-ngl",
+      "99",
+      "--jinja",
+      "--no-webui",
+      "--host",
+      "127.0.0.1",
+      "--cache-ram",
+      "1024",
+      "-fa",
+      "on"
+    ],
+    "note": "Which Vulkan device is the RX 6800M is not fixed (device 1 in October 2026, device 0 after a kernel update): runtime/brains.mjs asks the engine (--list-devices) and pins GGML_VK_VISIBLE_DEVICES to the one that matches the card the hardware sense reads; CHRONOS_GPU overrides. --cache-ram defaults to 8 GiB per server. Builds after 2026-10-17 carry the multi-device fix (PR 30468). Every launch adds --no-warmup (the warmup took the junction past 100 C) and the catalogue's commonArgs and per-brain args; a brain with \"device\": \"cpu\" runs with -ngl 0 --device none and asks for RAM, not VRAM.",
+    "device": "auto",
+    "deviceNote": "2026-10-21: the RX 6800M runs every job at full clock (2500 MHz, up to 136 W) and its cooling cannot keep up unthrottled: 98-106 C within a second, and the firmware powered the machine off three times. So every GPU brain runs under one governor (runtime/throttle.mjs): since 2026-11-14 the brains are paused and resumed together in fixed 10 ms bursts (onMs), about one token of work each, the pause between bursts steered so the junction smoothed over about a second stays under targetC and each burst's learned peak under peakC, never running more than dutyMax of the time, and every brain held paused from holdC until a reading is under 85 C; prompts go in tiny physical batches (ub 4 for the 9B and R1, 8 for the 4B). Measured: 9B peak 85 C, pp 71 / tg 18.8 tok/s (CPU 31 / 4.5); 4B peak 84 C, pp 159 / tg 32 (CPU 51 / 5.9). Gemma 4 12B (7.4 GB) does not fit beside the 4B inside the 20% VRAM reserve, so it and the 0.8B Offspring run on the CPU. With root, scripts/install-gpu-control.sh adds a real clock cap.",
+    "governor": {
+      "enabled": true,
+      "targetC": 87,
+      "dutyMax": 0.5,
+      "onMs": 10,
+      "peakC": 91,
+      "holdC": 93
+    },
+    "reserve": 0.2,
+    "startC": 74,
+    "reserveNote": "20% of VRAM, RAM and CPU threads is always kept for the owner's own work: fits() holds back 20% of VRAM and RAM, CPU brains share at most 12 of 16 threads, and every brain runs at nice 10 (CHRONOS_RESERVE).",
+    "specNote": "No --spec-type: ngram-mod speculation made llama-server fail every json_schema request with 'Failed to initialize samplers' (the judge and the planner use grammars). Speculation is a stage-5 bench, not a default."
+  },
+  "slots": {
+    "talk": "qwen3.5-9b",
+    "promethean": "qwen3.5-4b",
+    "offspring": "qwen3.5-0.8b"
+  },
+  "tiers": {
+    "s": {
+      "titan": null,
+      "promethean": "qwen3.5-4b",
+      "offspring": "qwen3.5-0.8b",
+      "maxTasks": 1,
+      "tokens": 16000,
+      "seconds": 900,
+      "note": "no plan: one Promethean on the 4B (the 0.8B if it falls); the 0.8B's judgement of the 4B is advisory, while the 4B judges the 0.8B with full force"
+    },
+    "m": {
+      "titan": "qwen3.5-9b",
+      "promethean": "qwen3.5-4b",
+      "offspring": "qwen3.5-0.8b",
+      "maxTasks": 3,
+      "tokens": 64000,
+      "seconds": 2700,
+      "note": "the behaviour before sizes: the 9B plans and judges, the 4B works, the 0.8B takes the falls"
+    }
+  },
+  "bytesNote": "Each brain's bytes and sha256 are its file's size and checksum as Hugging Face publishes them (the x-linked-size and x-linked-etag of https://huggingface.co/<repo>/resolve/main/<file>, read 2026-11-13); they equal the files on the laptop the brains were measured on. Setup shows the size, refuses a download the disk cannot hold, and deletes a finished download whose sha256 differs (the publisher changed the file: update the catalogue). The 9B's mmproj (the vision projector, mmprojBytes and mmprojSha256 read the same way on 2026-11-15) comes with it: setup fetches it beside the brain, and the runtime starts the brain with --mmproj (on the CPU, --no-mmproj-offload, unless the brain says mmprojOnGpu) so pictures attached in a chat reach it.",
+  "tiersNote": "Which brains do a quest of each size (runtime/sizes.mjs). s: no plan, the 4B leads; m: the 9B plans and judges, the 4B works, the 0.8B takes the falls. There is no l: a quest that asks for it runs as m. A tier whose lead brain is not on disk falls back to the next smaller one.",
+  "brains": [
+    {
+      "id": "qwen3.5-9b",
+      "name": "Qwen3.5-9B",
+      "role": "talk",
+      "repo": "unsloth/Qwen3.5-9B-GGUF",
+      "file": "Qwen3.5-9B-UD-Q4_K_XL.gguf",
+      "bytes": 5966095584,
+      "sha256": "6f5d30666c2d8ae16a306e616d95341dcf3cc46810df84d7e6f5a7d1e4c1b293",
+      "mmproj": "mmproj-F16.gguf",
+      "mmprojBytes": 918166080,
+      "mmprojSha256": "f70dc3509053962b0d0d3ee8a7eacebf5d60aa560cad78254ae8698516ae029f",
+      "vramMiB": 6200,
+      "ctx": 16384,
+      "port": 7710,
+      "thinking": true,
+      "tools": true,
+      "vision": true,
+      "license": "Apache-2.0",
+      "card": "https://huggingface.co/Qwen/Qwen3.5-9B",
+      "args": [
+        "-ctk",
+        "q8_0",
+        "-ctv",
+        "q8_0"
+      ],
+      "measured": {
+        "governed": {
+          "tg128": 8.3,
+          "best": 8.4,
+          "targetC": 87,
+          "peakC": 91,
+          "holds": 5,
+          "date": "2026-11-15",
+          "note": "governed, 10 ms bursts: mean generation tok/s over 3 runs of up to 256 tokens through a running Chronos (docs/bench.md); the field keeps its name"
+        },
+        "pp512": 363,
+        "tg128": 30,
+        "vramMiB": 5944,
+        "date": "2026-10-20",
+        "device": "Vulkan1",
+        "cpu": {
+          "pp256": 31,
+          "tg64": 4.5,
+          "threads": 12,
+          "date": "2026-10-21"
+        }
+      },
+      "threads": 8,
+      "ramMiB": 7000,
+      "ub": 4
+    },
+    {
+      "id": "qwen3.5-4b",
+      "name": "Qwen3.5-4B",
+      "role": "promethean",
+      "repo": "unsloth/Qwen3.5-4B-GGUF",
+      "file": "Qwen3.5-4B-UD-Q4_K_XL.gguf",
+      "bytes": 2912109728,
+      "sha256": "b252c5610a42ca82d20fe2a12813e9d069eed89292907e26c783eeb0bc961bc7",
+      "vramMiB": 3300,
+      "ctx": 8192,
+      "port": 7720,
+      "parallel": 2,
+      "thinking": false,
+      "tools": true,
+      "vision": false,
+      "license": "Apache-2.0",
+      "card": "https://huggingface.co/Qwen/Qwen3.5-4B",
+      "args": [
+        "-ctk",
+        "q8_0",
+        "-ctv",
+        "q8_0",
+        "--reasoning-format",
+        "none"
+      ],
+      "measured": {
+        "pp512": 762,
+        "tg128": 57,
+        "date": "2026-10-20",
+        "device": "Vulkan1",
+        "cpu": {
+          "pp256": 51,
+          "tg64": 5.9,
+          "threads": 12,
+          "date": "2026-10-21"
+        },
+        "governed": {
+          "tg128": 19.4,
+          "best": 19.9,
+          "targetC": 87,
+          "peakC": 91,
+          "holds": 5,
+          "date": "2026-11-15",
+          "note": "governed, 10 ms bursts: mean generation tok/s over 3 runs of up to 256 tokens through a running Chronos (docs/bench.md); the field keeps its name. On 2026-10-21, under the first governor (target 82 C), it was 17.5 with prompts at 150"
+        }
+      },
+      "ub": 8
+    },
+    {
+      "id": "qwen3.5-0.8b",
+      "name": "Qwen3.5-0.8B",
+      "role": "offspring",
+      "repo": "unsloth/Qwen3.5-0.8B-GGUF",
+      "file": "Qwen3.5-0.8B-Q8_0.gguf",
+      "bytes": 811843840,
+      "sha256": "0ad885ffd4bb022fc4f0d33a3308fa108ef8613159d3b3a67e23abca056b7a6c",
+      "vramMiB": 1100,
+      "ctx": 8192,
+      "port": 7730,
+      "parallel": 2,
+      "thinking": false,
+      "tools": true,
+      "vision": false,
+      "license": "Apache-2.0",
+      "card": "https://huggingface.co/Qwen/Qwen3.5-0.8B",
+      "args": [
+        "--reasoning-format",
+        "none"
+      ],
+      "measured": {
+        "pp512": 5959,
+        "tg128": 131,
+        "date": "2026-10-20",
+        "device": "Vulkan1",
+        "tokensPerSecond": 26.8,
+        "note": "tokensPerSecond: generation on the CPU, where this brain runs (not governed), mean of 3 runs of up to 256 tokens through a running Chronos on 2026-11-14 (docs/bench.md); pp512 and tg128 are llama-bench on the GPU, 2026-10-20"
+      },
+      "note": "8192 over 2 slots = 4096 a worker; an Offspring prompt is about 1,400 tokens",
+      "device": "cpu",
+      "ramMiB": 1400,
+      "threads": 4
+    }
+  ]
+}
