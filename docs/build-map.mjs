@@ -18,7 +18,7 @@ export const regions = [
 ];
 
 export const nodes = [
-  { id: "repo", label: "felipelopezm1/Chronos-Lite", sub: "repository", kind: "service", region: "project", stage: 0, w: 0.3,
+  { id: "repo", label: "Chronos-Lite", sub: "repository", kind: "service", region: "project", stage: 0, w: 0.3,
     what: "A smaller, white-label Chronos: a local-models harness with three brains, two sizes and one card, hired over HTTP." },
   { id: "edition", label: "lite/edition.json", sub: "the caps", kind: "doc", region: "project", stage: 0, w: 0.3,
     what: "What Lite is, as numbers the check holds: brains, sizes, cards, turns, depth, tools, port, and the cut list." },
