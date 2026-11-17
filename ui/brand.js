@@ -23,11 +23,23 @@ export const DEFAULT_WORDS = {
 
 const HEX = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i;
 
+/** A hex accent as #rrggbb; any other CSS colour ("rebeccapurple", "rgb(29 78 216)") is read through the browser. */
 export function validHex(v) {
-  if (typeof v !== "string" || !HEX.test(v.trim())) return null;
+  if (typeof v !== "string") return null;
+  if (!HEX.test(v.trim())) return cssColour(v.trim());
   let h = v.trim().replace("#", "").toLowerCase();
   if (h.length === 3) h = h.split("").map((c) => c + c).join("");
   return `#${h}`;
+}
+
+function cssColour(v) {
+  if (!v || typeof document === "undefined" || !globalThis.CSS?.supports?.("color", v)) return null;
+  const el = document.createElement("span");
+  el.style.color = v;
+  document.documentElement.append(el);
+  const m = getComputedStyle(el).color.match(/(\d+(?:\.\d+)?)[ ,]+(\d+(?:\.\d+)?)[ ,]+(\d+(?:\.\d+)?)/);
+  el.remove();
+  return m ? toHex(m.slice(1, 4).map(Number)) : null;
 }
 
 const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
@@ -75,12 +87,12 @@ function block(t) {
   return `--accent:${t.fill};--accent-ink:${t.ink};--accent-text:${t.text};--accent-soft:${t.soft};--focus:${t.ring};`;
 }
 
-/** Two letters for a monogram: the short name's capitals, else its first two letters. */
+/** The monogram: the initials of a two-word short name (Acme Corp: AC), else its first letter (Acme: A). */
 export function monogram(shortName, name) {
   const s = String(shortName || name || "A").trim();
   const words = s.split(/\s+/).filter(Boolean);
   if (words.length > 1) return (words[0][0] + words[1][0]).toUpperCase();
-  return s.slice(0, 2).replace(/^./, (c) => c.toUpperCase());
+  return s.slice(0, 1).toUpperCase();
 }
 
 /** Turn /edition into the brand the page shows, with every field defaulted. */

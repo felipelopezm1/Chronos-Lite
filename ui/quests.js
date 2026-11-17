@@ -1,6 +1,6 @@
-// Every task this page knows, built from the event stream alone (Lite has no list
-// route): quest.queued opens one, the agent.* and log events fill its timeline,
-// quest.done closes it. Pure: the page renders from what this returns.
+// Every task this page knows: GET /quests seeds the list, then the event stream keeps
+// it live: quest.queued opens one, the agent.* and log events fill its timeline,
+// quest.done closes it. The page renders from what this returns.
 
 export const STAGES = ["plan", "work", "review", "done"];
 const ACTIVE = new Set(["queued", "running", "stopping"]);
@@ -16,12 +16,32 @@ export function roleWord(tier, words) {
   return words.worker;
 }
 
-/** Log lines come from the runtime as written; its internal role names are put in the page's words. */
+let brandName = "the service";
+/** The name the runtime's own text is rewritten to when it names itself. */
+export function setTextBrand(name) {
+  if (name) brandName = name;
+}
+
+/** A model id as a size the page may show: qwen3.5-9b -> 9B. Never the vendor. */
+export function modelSize(id) {
+  const m = String(id ?? "").match(/(\d+(?:\.\d+)?)b$/i);
+  return m ? `${m[1]}B` : "";
+}
+
+/**
+ * Log lines come from the runtime as written: its internal role names, its model ids and its
+ * own name are put in the page's words, so a rebranded page never shows them.
+ */
 export function plainText(text, words) {
   return String(text ?? "")
     .replace(/\bTitans?\b/gi, words.planner)
     .replace(/\bPrometheans?\b/gi, words.worker)
     .replace(/\bOffspring\b/gi, words.helper)
+    .replace(/\bbrain\s+[a-z]+[\d.]*-(\d+(?:\.\d+)?)b\b/gi, (m, n) => `${n}B ${words.model}`)
+    .replace(/\b[a-z]+[\d.]*-(\d+(?:\.\d+)?)b\b/gi, (m, n) => `the ${n}B ${words.model}`)
+    .replace(/\bbrains\b/gi, `${words.model}s`)
+    .replace(/\bbrain\b/gi, words.model)
+    .replace(/\bChronos(?: Lite)?\b/g, brandName)
     .replace(/\bquests?\b/gi, (m) => (m.toLowerCase().endsWith("s") ? `${words.task}s` : words.task));
 }
 
@@ -98,8 +118,8 @@ export function createStore() {
         break;
       }
       case "agent.done": {
-        if (ev.tier === "titan") break;
         const a = q.agents.get(ev.id);
+        if (ev.tier === "titan" || !a) break; // the planner, or one whose start this page never saw
         if (a && a.status !== "split") a.status = ev.status === "fell" ? "fell" : ev.status ?? "done";
         if (a) a.summary = ev.summary ?? "";
         if (ev.status === "fell") break; // the split that follows says it
@@ -140,9 +160,17 @@ export function createStore() {
     q.task = q.task || row.task || "";
     q.size = q.size ?? row.size ?? null;
     q.at = q.at ?? row.at ?? null;
-    if (row.status && !(q.status === "stopping" && row.status === "running")) q.status = row.status;
+    // the list may be a moment older than the stream: never move a finished task back, or a stopping one to running
+    const stale = (!isActive(q) && ACTIVE.has(row.status)) || (q.status === "stopping" && row.status === "running");
+    if (row.status && !stale) q.status = row.status;
     if (row.report?.summary || row.summary) q.summary = plainText(row.report?.summary ?? row.summary, words);
     if (row.report?.files) q.files = row.report.files;
+    if (row.downgraded) q.downgraded = row.downgraded;
+    if (!isActive(q) && q.stage !== "done") {
+      q.stage = "done";
+      q.stages.done = q.status === "done" ? "done" : "ended";
+    }
+    order.sort((a, b) => (quests.get(b).at ?? 0) - (quests.get(a).at ?? 0));
   }
 
   return {

@@ -12,6 +12,7 @@
     "test": "node scripts/check-edition.mjs && node --test runtime/*.test.mjs",
     "check": "node scripts/check-edition.mjs",
     "start": "node runtime/server.mjs",
-    "sync:check": "node scripts/sync-check.mjs"
+    "sync:check": "node scripts/sync-check.mjs",
+    "mock": "node scripts/mock-runtime.mjs"
   }
 }

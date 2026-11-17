@@ -9,8 +9,8 @@
   "counts": {
     "keep": 15,
     "reuse": 16,
-    "rewrite": 7,
-    "never": 265
+    "rewrite": 10,
+    "never": 262
   },
   "keep": [
     {"path":"runtime/cardlock.mjs","why":"the card lock: the same file and rules as full Chronos, so the two never share the GPU"},
@@ -48,6 +48,9 @@
     {"path":"runtime/sizes.test.mjs","why":"the size tests for s and m and the l downgrade"}
   ],
   "rewrite": [
+    {"path":"scripts/mock-runtime.mjs","why":"the slim UI's stand-in service, written fresh for Lite (docs/decisions/0018-white-label-ui.md)"},
+    {"path":"ui/app.js","why":"the slim white-label UI, written fresh for Lite (docs/decisions/0018-white-label-ui.md)"},
+    {"path":"ui/index.html","why":"the slim white-label UI, written fresh for Lite (docs/decisions/0018-white-label-ui.md)"},
     {"path":"docs/PLAN.md","why":"Lite's own plan is docs/plan.md; the protocol contracts it keeps are the wisp ones"},
     {"path":"docs/build-map.mjs","why":"Lite keeps its own build map from stage 1"},
     {"path":"docs/guide.md","why":"stage 4: a short install and run guide"},
@@ -281,9 +284,7 @@
     {"path":"scripts/install-desktop.sh","why":"the Mac launcher and the desktop install are cut"},
     {"path":"scripts/install-gpu-control.sh","why":"the root clock helper stays with full Chronos; Lite runs under the governor only"},
     {"path":"scripts/lib/rest-state.mjs","why":"the Mac launcher and the desktop install are cut"},
-    {"path":"scripts/mock-runtime.mjs","why":"tools for the full UI, which is cut"},
     {"path":"scripts/ui-shot.mjs","why":"tools for the full UI, which is cut"},
-    {"path":"ui/app.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/backdrop.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/dock.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/face/README.md","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
@@ -297,7 +298,6 @@
     {"path":"ui/face/frames/s-open.png","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/face/frames/s-rest.png","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/face/index.html","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
-    {"path":"ui/index.html","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/lib/api.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/lib/decode.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/lib/dom.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},

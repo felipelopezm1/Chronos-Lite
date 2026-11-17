@@ -3,7 +3,7 @@
 
 import { api, followEvents } from "./api.js";
 import { brandOf, applyBrand, monogram } from "./brand.js";
-import { createStore, isActive, roleWord, sizeWord, statusWord, STAGES } from "./quests.js";
+import { createStore, isActive, modelSize, roleWord, setTextBrand, sizeWord, statusWord, STAGES } from "./quests.js";
 
 const $ = (id) => document.getElementById(id);
 const store = createStore();
@@ -42,6 +42,7 @@ function ago(t) {
 function showBrand() {
   const b = state.brand;
   words = b.words;
+  setTextBrand(b.name);
   applyBrand(b);
   $("brand-name").textContent = b.name;
   const mark = $("mark");
@@ -54,6 +55,7 @@ function showBrand() {
   $("built-on").textContent = b.builtOn;
   $("version").textContent = b.version ? `${b.name} ${b.version}` : b.name;
   $("ask-label").textContent = `What should the ${words.agents} do?`;
+  $("ask-text").placeholder = `Describe the ${words.task} in plain words.`;
   $("tasks-title").textContent = words.tasks;
   $("models-title").textContent = words.models;
   for (const el of document.querySelectorAll("[data-word]")) el.textContent = words[el.dataset.word];
@@ -100,8 +102,15 @@ function renderHealth() {
   $("send").disabled = state.down || state.sending;
 }
 
-const MODEL_STATE = { ready: "loaded", serving: "loaded", loading: "loading", starting: "loading", waiting: "waiting", failed: "failed", stopped: "idle", missing: "missing" };
+const MODEL_STATE = { ready: "loaded", serving: "loaded", loading: "loading", starting: "loading", waiting: "waiting", failed: "failed", idle: "idle", stopped: "idle", missing: "missing" };
 const MODEL_LABEL = { loaded: "Loaded", loading: "Loading", waiting: "Waiting for card", failed: "Failed", idle: "Idle", missing: "Not installed" };
+
+/** A model's part, from the sizes' tiers (the 9B's own role says "talk"), else from its role. */
+function partOf(b) {
+  const tiers = Object.values(state.health?.sizes ?? {}).map((x) => x?.tier ?? {});
+  for (const part of ["titan", "promethean", "offspring"]) if (tiers.some((t) => t[part] === b.id)) return part;
+  return b.role;
+}
 
 function renderModels() {
   const ul = $("models");
@@ -116,9 +125,10 @@ function renderModels() {
   }
   const order = { titan: 0, promethean: 1, offspring: 2 };
   ul.replaceChildren(
-    ...[...brains].sort((a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9)).map((b) => {
+    ...brains.map((b) => ({ b, part: partOf(b) })).sort((x, y) => (order[x.part] ?? 9) - (order[y.part] ?? 9)).map(({ b, part }) => {
       const s = b.present === false ? "missing" : MODEL_STATE[b.status] ?? "idle";
-      return h("li.model", {}, h("span", {}, h("span.model-role", {}, cap(roleWord(b.role, words))), h("span.model-id", {}, b.id)), chip(s === "missing" ? "blocked" : s === "idle" ? "queued" : s, MODEL_LABEL[s]));
+      const size = modelSize(b.id);
+      return h("li.model", {}, h("span", {}, h("span.model-role", {}, cap(roleWord(part, words))), h("span.model-id", {}, size ? `${size} ${words.model}` : words.model)), chip(s === "missing" ? "blocked" : s === "idle" ? "queued" : s, MODEL_LABEL[s]));
     }),
   );
 }
@@ -183,7 +193,7 @@ function renderDetail() {
   const lines = q.timeline.filter((x) => showMinor || !x.minor);
   const hidden = q.timeline.length - lines.length;
 
-  root.replaceChildren(
+  root.replaceChildren(...[
     h("button.btn.back", { type: "button", "data-key": "back", onclick: () => select(null) }, `← All ${words.tasks.toLowerCase()}`),
     h("div.d-head", {},
       h("div", {},
@@ -194,23 +204,23 @@ function renderDetail() {
     ),
     q.downgraded ? h("p.note", {}, `A larger size was asked for; this edition runs it as ${words.thorough.toLowerCase()}.`) : null,
     h("ol.stages", { "aria-label": "Progress" }, stages),
-    q.summary || q.why ? h("section.d-section", {}, h("h3", {}, "Result"), h("p.summary", {}, q.summary || q.why)) : null,
+    q.summary || q.why ? h("section.d-section", {}, h("h2", {}, "Result"), h("p.summary", {}, q.summary || q.why)) : null,
     agents.length
-      ? h("section.d-section", {}, h("h3", {}, `${cap(words.worker)}s and ${words.helper}s`),
+      ? h("section.d-section", {}, h("h2", {}, `${cap(words.worker)}s and ${words.helper}s`),
           h("ul.agents", {}, agents.map((a) => h("li.agent", { "data-depth": String(Math.min(a.depth, 2)) },
             h("span.agent-name", {}, `${cap(roleWord(a.tier, words))} ${a.label}`),
             h("span.agent-task", {}, a.summary && a.status !== "working" ? a.summary : a.task),
             chip(a.status)))))
       : null,
     h("section.d-section", {},
-      h("h3", {}, "Timeline"),
+      h("h2", {}, "Timeline"),
       lines.length
         ? h("ol.timeline", { "aria-live": "polite" }, lines.map((x, i) =>
             h("li.tl", { "data-k": x.kind, "data-warn": x.warn ? "true" : null, "data-minor": x.minor ? "true" : null, "data-live": active && i === lines.length - 1 ? "true" : null }, h("time", { datetime: new Date(x.t).toISOString() }, clock(x.t)), x.text)))
         : h("p.empty", {}, "Waiting for the first event…"),
-      hidden || showMinor ? h("button.btn.btn-quiet.toggle-minor", { type: "button", "data-key": "minor", onclick: () => toggleMinor(q.id) }, showMinor ? "Hide the detailed log" : `Show the detailed log (${hidden} more lines)`) : null,
+      hidden || showMinor ? h("button.btn.btn-quiet.toggle-minor", { type: "button", "data-key": "minor", onclick: () => toggleMinor(q.id) }, showMinor ? "Hide the detailed log" : `Show the detailed log (${hidden} more ${hidden === 1 ? "line" : "lines"})`) : null,
     ),
-  );
+  ].filter(Boolean));
 }
 
 /* ---------- actions ---------- */
@@ -342,6 +352,19 @@ async function pollHealth() {
   render();
 }
 
+/** GET /quests seeds the list (finished tasks the event ring no longer holds); the stream keeps it live. */
+async function loadList() {
+  try {
+    const { quests } = await api.list();
+    for (const row of quests) store.merge(row, words);
+    state.booted = true;
+    fromHash();
+    render();
+  } catch {
+    /* the stream still fills the list; a down service shows in the header */
+  }
+}
+
 async function loadEdition() {
   let e = null;
   try {
@@ -362,7 +385,7 @@ async function loadEdition() {
   return !!e;
 }
 
-const BRAIN_STATUS = { "brain.loading": "loading", "brain.ready": "ready", "brain.stopped": "stopped", "brain.failed": "failed", "brain.waiting": "waiting" };
+const BRAIN_STATUS = { "brain.loading": "loading", "brain.ready": "ready", "brain.stopped": "idle", "brain.failed": "failed", "brain.waiting": "waiting" };
 function onEvent(ev) {
   if (BRAIN_STATUS[ev.type] && state.health?.brains) {
     const b = state.health.brains.find((x) => x.id === ev.id);
@@ -397,7 +420,9 @@ function boot() {
   stream = followEvents({
     onEvent,
     onState: (s) => {
+      const back = s === "live" && state.stream === "reconnecting";
       state.stream = s;
+      if (back) loadList();
       if (s === "live") {
         state.booted = true;
         fromHash();
@@ -406,6 +431,7 @@ function boot() {
     },
   });
   loadEdition().then((ok) => {
+    loadList();
     if (!ok) setTimeout(function again() { loadEdition().then((o) => o || setTimeout(again, 5000)); }, 5000);
   });
   pollHealth();

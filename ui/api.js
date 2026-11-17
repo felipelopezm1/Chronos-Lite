@@ -39,6 +39,8 @@ export const api = {
   health: () => call("GET", "/health"),
   capabilities: () => call("GET", "/capabilities"),
   edition: () => call("GET", "/edition"),
+  /** GET /quests: {quests, counts}; a bare array is taken too */
+  list: () => call("GET", "/quests").then((r) => (Array.isArray(r) ? { quests: r, counts: null } : { quests: r?.quests ?? [], counts: r?.counts ?? null })),
   quest: (id) => call("GET", `/quests/${encodeURIComponent(id)}`),
   send: (task, size) => call("POST", "/quests", { task, size, by: "ui" }),
   stop: (id) => call("POST", `/quests/${encodeURIComponent(id)}/stop`),

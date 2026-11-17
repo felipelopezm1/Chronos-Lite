@@ -42,6 +42,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   min-height: 100vh; display: flex; flex-direction: column;
@@ -63,7 +64,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .mark {
   width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 9px;
-  background: var(--accent); color: var(--accent-ink); font-weight: 650; font-size: 14px; letter-spacing: 0.02em; overflow: hidden;
+  background: var(--accent); color: var(--accent-ink); font-weight: 650; font-size: 16px; overflow: hidden;
 }
 .mark img { width: 100%; height: 100%; object-fit: contain; background: var(--surface); }
 .brand-name { font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -141,6 +142,8 @@ textarea:focus-visible { border-color: var(--accent); }
 .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 550; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ink-2); white-space: nowrap; }
 .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .chip-size::before { display: none; }
+.task-item > .chip { align-self: start; justify-self: end; }
+.agent > .chip { align-self: center; justify-self: end; }
 .chip[data-s="running"], .chip[data-s="working"], .chip[data-s="loaded"] { color: var(--accent-text); border-color: var(--accent); background: var(--accent-soft); }
 .chip[data-s="running"]::before, .chip[data-s="working"]::before, .chip[data-s="loading"]::before, .chip[data-s="stopping"]::before { animation: pulse 1.6s ease-in-out infinite; }
 .chip[data-s="done"] { color: var(--good); border-color: currentColor; background: var(--good-soft); }
@@ -151,7 +154,7 @@ textarea:focus-visible { border-color: var(--accent); }
 .model-list { list-style: none; margin: 0; padding: 4px 20px 16px; display: flex; flex-direction: column; gap: 10px; }
 .model { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; }
 .model-role { font-weight: 550; }
-.model-id { display: block; font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+.model-id { display: block; font-size: 12px; color: var(--ink-3); }
 
 /* detail */
 .detail { padding: 28px 32px; min-height: 480px; outline: none; }
@@ -173,7 +176,7 @@ textarea:focus-visible { border-color: var(--accent); }
 .stage[data-st="skipped"] b { color: var(--ink-3); font-weight: 500; }
 
 .d-section { margin-top: 28px; }
-.d-section h3 { font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 10px; }
+.d-section h2 { font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 10px; }
 .summary { font-size: 15px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
 .agents { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .agent { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; }
@@ -213,6 +216,7 @@ textarea:focus-visible { border-color: var(--accent); }
   .health-text { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
   .agent { grid-template-columns: 1fr auto; }
   .agent-task { grid-column: 1 / -1; }
+  .agent > .chip { grid-column: 2; grid-row: 1; }
   .agent[data-depth="1"] { margin-left: 14px; }
   .agent[data-depth="2"] { margin-left: 28px; }
 }
