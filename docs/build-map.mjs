@@ -15,6 +15,9 @@ export const stages = [
   { name: "The core carried", short: "core", date: "2026-11-17", time: "15:30",
     text: "Stage 3. The runtime comes over from Chronos and is cut at four seams: the brains lose Colibri, the server keeps nine routes (/health, /capabilities, /edition, /events with since from an in-memory ring, the quest routes, the UI's files), the bus loses the ledger, and nothing reaches chats or media. Sizes are s and m, an l runs as m with a note; a fall splits at most 2 deep and a quest makes at most 25 brain calls. The brains listen a hundred above Chronos's, the card lock is the full Chronos home's, and the beacon says chronos-lite. docs/runtime-api.md documents every route and event for the slim UI. runtime/e2e.test.mjs drives nine cases over HTTP through the real brains module and runner over a stand-in llama-server; 165 tests in 15 files, 164 pass and the live one is opt-in.",
     commits: [] },
+  { name: "Install", short: "install", date: "2026-11-17", time: "20:30",
+    text: "Stage 4. scripts/install.sh, POSIX sh, puts the engine (llama.cpp b11669: Vulkan on Linux, Metal on Apple silicon) and the brains (--models none, minimal or all) into ~/.chronos-lite, never with sudo and never anywhere else; --dry-run prints every action and touches nothing. A full Chronos's engine and brain files are used first, in place and read-only, when they are the pinned build and sha256; the rest is downloaded resumably with curl and kept only when its sha256 is the pinned one (decision 0019). runtime/models.mjs finds each file across the two homes and keeps what it checked in reuse.json, so runtime/brains.mjs starts a reused brain where it is without hashing it again, and /health says where each brain runs from. scripts/doctor.mjs reports Node, the engine, each file and how it was checked, the ports, the card lock and the GPU, in words or JSON; scripts/chronos-lite.mjs starts, stops, reads and hires the service over HTTP. Tested on temp homes with fake files and file:// downloads, never the network: 183 tests in 17 files, 182 pass and the live one is opt-in. Version 0.2.0.",
+    commits: [] },
 ];
 
 export const regions = [
@@ -58,6 +61,16 @@ export const nodes = [
     what: "Every route and event the UI and a caller may use." },
   { id: "e2e", label: "runtime/e2e.test.mjs", sub: "end to end", kind: "script", region: "project", stage: 2, w: 0.2,
     what: "Nine cases over HTTP on a stand-in llama-server." },
+  { id: "installer", label: "scripts/install.sh", sub: "reuse, then fetch", kind: "script", region: "project", stage: 3, w: 0.3,
+    what: "The engine and the brains into ~/.chronos-lite: a full Chronos's pinned files used in place, the rest downloaded and checked by sha256." },
+  { id: "models", label: "runtime/models.mjs", sub: "the model locator", kind: "service", region: "project", stage: 3, w: 0.3,
+    what: "Finds each brain file and the engine across Lite's home and the full Chronos home, by sha256; keeps reuse.json." },
+  { id: "doctor", label: "scripts/doctor.mjs", sub: "what is here", kind: "script", region: "project", stage: 3, w: 0.2,
+    what: "Node, engine, brains and where they are, ports, card lock, GPU; the installer's plan." },
+  { id: "cli", label: "scripts/chronos-lite.mjs", sub: "the command", kind: "script", region: "project", stage: 3, w: 0.2,
+    what: "start, stop, status, doctor and ask, over the HTTP API." },
+  { id: "install-doc", label: "docs/install.md", sub: "the guide", kind: "doc", region: "project", stage: 3, w: 0.2,
+    what: "How to install, what is reused, every option, the doctor and the command." },
 ];
 
 export const edges = [
@@ -79,4 +92,10 @@ export const edges = [
   ["runtime-api", "server", "documents", 2],
   ["e2e", "server", "drives over HTTP", 2],
   ["edition-check", "server", "routes and port", 2],
+  ["installer", "doctor", "asks for the plan", 3],
+  ["doctor", "models", "finds and checks", 3],
+  ["brains", "models", "where each file is", 3],
+  ["models", "catalogue", "the pinned sha256", 3],
+  ["cli", "server", "over HTTP", 3],
+  ["install-doc", "installer", "documents", 3],
 ];

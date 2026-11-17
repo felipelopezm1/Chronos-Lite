@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "Every file of chronos's runtime/, forge/, scripts/, ui/, desktop/ and docs/, sorted. keep: copied as it is (scripts/sync-check.mjs says when it drifts). reuse: copied, then trimmed here. rewrite: written fresh in Lite. never: a cut part or personal data; it does not ship.",
+  "about": "Every file of chronos's runtime/, forge/, scripts/, ui/, desktop/ and docs/, sorted. keep: copied as it is (scripts/sync-check.mjs says when it drifts). reuse: copied, then trimmed here. rewrite: written fresh in Lite. never: a cut part or personal data; it does not ship. own: a file of Lite's with no Chronos file behind it (listed from stage 4).",
   "source": {
     "repo": "chronos (the full edition)",
     "local": "../chronos",
@@ -10,7 +10,8 @@
     "keep": 15,
     "reuse": 16,
     "rewrite": 10,
-    "never": 262
+    "never": 262,
+    "own": 6
   },
   "keep": [
     {"path":"runtime/cardlock.mjs","why":"the card lock: the same file and rules as full Chronos, so the two never share the GPU"},
@@ -53,11 +54,11 @@
     {"path":"ui/index.html","why":"the slim white-label UI, written fresh for Lite (docs/decisions/0018-white-label-ui.md)"},
     {"path":"docs/PLAN.md","why":"Lite's own plan is docs/plan.md; the protocol contracts it keeps are the wisp ones"},
     {"path":"docs/build-map.mjs","why":"Lite keeps its own build map from stage 1"},
-    {"path":"docs/guide.md","why":"stage 4: a short install and run guide"},
+    {"path":"docs/guide.md","why":"stage 4: written fresh as docs/install.md: install, what is reused, the options, the doctor and the command"},
     {"path":"runtime/capabilities.mjs","why":"the 400-line manifest reaches every part; Lite's is small and built from the edition"},
     {"path":"runtime/capabilities.test.mjs","why":"tests for the small manifest"},
-    {"path":"scripts/doctor.sh","why":"stage 4: a short check of the engine, the brains and the card lock"},
-    {"path":"scripts/install.sh","why":"stage 4: the engine and the three brains into ~/.chronos-lite, nothing else"}
+    {"path":"scripts/doctor.sh","why":"stage 4: written fresh as scripts/doctor.mjs (Node, no dependencies, words or --json): the engine, the brains and where they are, the ports, the card lock, the GPU, and the installer's plan"},
+    {"path":"scripts/install.sh","why":"stage 4: written fresh in POSIX sh: a full Chronos's pinned engine and brains used in place, read-only, and the rest into ~/.chronos-lite by sha256, nothing else (docs/decisions/0019)"}
   ],
   "never": [
     {"path":"desktop/README.md","why":"the desktop app (Electron) is cut"},
@@ -255,7 +256,7 @@
     {"path":"runtime/bridge.test.mjs","why":"envoys and the outbox: Hephaestus hires Lite as a wisp only"},
     {"path":"runtime/chats.mjs","why":"chats are cut"},
     {"path":"runtime/chats.test.mjs","why":"chats are cut"},
-    {"path":"runtime/cli.mjs","why":"the CLI is cut: Hephaestus and curl are the callers"},
+    {"path":"runtime/cli.mjs","why":"the full CLI is cut: Hephaestus and curl are the callers; Lite's own scripts/chronos-lite.mjs, written fresh over the HTTP API, stands in for it (docs/decisions/0019)"},
     {"path":"runtime/cli.test.mjs","why":"the CLI is cut: Hephaestus and curl are the callers"},
     {"path":"runtime/colibri.mjs","why":"Colibri is cut"},
     {"path":"runtime/colibri.test.mjs","why":"Colibri is cut"},
@@ -270,7 +271,7 @@
     {"path":"runtime/media.test.mjs","why":"media and attachments are cut"},
     {"path":"runtime/rest-state.test.mjs","why":"tests the Mac launcher's rest-state script, which is cut"},
     {"path":"runtime/scripts.test.mjs","why":"tests the full edition's scripts"},
-    {"path":"runtime/setup.mjs","why":"setup downloads are cut (the installer, stage 4, fetches the brains)"},
+    {"path":"runtime/setup.mjs","why":"setup downloads are cut: scripts/install.sh fetches the engine and the brains (stage 4)"},
     {"path":"runtime/setup.test.mjs","why":"setup downloads are cut (the installer, stage 4, fetches the brains)"},
     {"path":"runtime/ui.mjs","why":"the full UI is cut; a slim one is stage 6, written fresh"},
     {"path":"runtime/ui.test.mjs","why":"the full UI is cut; a slim one is stage 6, written fresh"},
@@ -322,5 +323,13 @@
     {"path":"ui/views/now.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/views/record.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"},
     {"path":"ui/views/setup.js","why":"the full UI (face, loom, record) is cut; a slim UI is stage 6, written fresh"}
+  ],
+  "own": [
+    {"path":"runtime/models.mjs","why":"stage 4: finds the engine and each brain file across Lite's home and the full Chronos home by sha256, and keeps reuse.json (docs/decisions/0019)"},
+    {"path":"runtime/models.test.mjs","why":"its tests: reuse by sha256, a wrong hash refused, Lite's home as the fallback, nothing written in the full Chronos home"},
+    {"path":"scripts/doctor.mjs","why":"stage 4: the doctor and the installer's plan (it stands for scripts/doctor.sh, rewrite)"},
+    {"path":"scripts/chronos-lite.mjs","why":"stage 4: start, stop, status, doctor and ask over the HTTP API"},
+    {"path":"scripts/install.test.mjs","why":"the installer, the doctor and the command run on temp homes with fake files and file:// downloads"},
+    {"path":"docs/install.md","why":"stage 4: the install guide (it stands for docs/guide.md, rewrite)"}
   ]
 }

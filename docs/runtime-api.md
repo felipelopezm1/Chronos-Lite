@@ -29,7 +29,7 @@ Who this is and how it stands. Cheap enough to poll every few seconds.
   "port": 7778,
   "commit": "4d52f04",
   "brains": [
-    { "id": "qwen3.5-9b", "role": "talk", "status": "idle", "slot": "talk", "present": false },
+    { "id": "qwen3.5-9b", "role": "talk", "status": "idle", "slot": "talk", "present": false, "where": null },
     { "id": "qwen3.5-4b", "role": "promethean", "status": "idle", "slot": "promethean", "present": false },
     { "id": "qwen3.5-0.8b", "role": "offspring", "status": "idle", "slot": "offspring", "present": false }
   ],
@@ -47,7 +47,7 @@ Who this is and how it stands. Cheap enough to poll every few seconds.
 ```
 
 - `kind` is `"chronos"` so a caller written for full Chronos hires Lite unchanged; `edition: "lite"` says which it is.
-- `brains[].status` is `idle`, `waiting` (for the card), `loading`, `ready` or `failed`. `present` is whether its file is on disk.
+- `brains[].status` is `idle`, `waiting` (for the card), `loading`, `ready` or `failed`. `present` is whether its file is on disk; `where` is whose copy it runs from: `"lite"` (Lite's home), `"chronos"` (a full Chronos's, reused in place because the installer found it to be the pinned file, docs/install.md) or `null` when it is not there.
 - `hardware` is `null` where the hardware sense cannot read this system; any of its numbers may be `null`.
 - `card.lock` is the card lock file as it is now: `null` when the card is free, else `{ pid, port, brain, since, host, what, id, engines }`; `mine` is true when this process holds it. `what` is `"chronos-lite"` for Lite.
 - `sizes` holds `s` and `m` only. A size with `ok: false` has `why` and `fallsTo` (the size a quest of it runs as, or `null`).

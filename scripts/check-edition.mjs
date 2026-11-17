@@ -69,6 +69,7 @@ for (const r of edition.service.routes) ok(api.includes(`## ${r}`) || (r === "GE
 const tracked = walk(here);
 for (const e of carry.never) ok(!fs.existsSync(path.join(here, e.path)), `${e.path} is cut (lite/carry.json never) and is not in the tree`);
 for (const e of [...carry.keep, ...carry.reuse]) ok(fs.existsSync(path.join(here, e.path)), `${e.path} is carried (lite/carry.json) and is in the tree`);
+for (const e of carry.own ?? []) ok(fs.existsSync(path.join(here, e.path)), `${e.path} is Lite's own (lite/carry.json own) and is in the tree`);
 const CUT_MODULES = /from\s+["']\.\/(bridge|chats|colibri|heph|history|ledger|media|setup|ui|cli)\.mjs["']|import\(\s*["']\.\/(bridge|chats|colibri|heph|history|ledger|media|setup|ui|cli)\.mjs["']/;
 for (const f of tracked.filter((f) => f.startsWith("runtime/") && f.endsWith(".mjs"))) ok(!CUT_MODULES.test(fs.readFileSync(path.join(here, f), "utf8")), `${f} imports no cut module`);
 ok(!fs.existsSync(path.join(here, "desktop")), "no desktop app");
