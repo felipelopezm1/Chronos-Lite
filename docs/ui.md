@@ -32,6 +32,10 @@ She is drawn live as a grid of monospace glyphs on one canvas, from eight frames
 
 On top of the state she reacts once: she tears and re-forms on a split, a failure hits her hard, a stop jolts her. When the system asks for reduced motion, nothing of her own moves; a change of state cross-fades.
 
+![Chronos Lite in dark mode: a quest just came back and the face says it as stone, her cracks lit blue](media/ui/lite-speaking-1440.png)
+
+Why the face, the loom and the record came back after the slim UI, and the vocabulary rule (a brand that names none gets the plain words): [decision 0020](decisions/0020-the-essence-back.md).
+
 ## The views
 
 - **Now.** The ask (the text, the size: auto, S or M, and send), a line that says the latest event in words, the steps so far on the left (newest on top), and on the right what stands now: a heat hold, the quest that runs (plan, work and judge, its brains, its agents with the helpers a split made nested under the step they took over, stop), the brains awake or loading, and the quests that wait.

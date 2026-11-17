@@ -1,6 +1,6 @@
 # 0018: A white-label UI, written fresh
 
-**Date:** 2026-11-17. **Status:** accepted. Builds on [0006](0006-slim-ui-later.md) and [0016](0016-edition-quests-list-and-ui.md).
+**Date:** 2026-11-17. **Status:** superseded by [0020](0020-the-essence-back.md). Builds on [0006](0006-slim-ui-later.md) and [0016](0016-edition-quests-list-and-ui.md).
 
 ## The choice
 

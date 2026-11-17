@@ -18,6 +18,8 @@
 
 It is Chronos's own UI, cut to what Lite serves. Chronos's face sits in the dock and reacts to the quests: she thinks while one is planned and judged, works while it runs, tears and re-forms on a split, flinches at a failure and says what came back. Four views sit along the bottom: Now (the ask, what is going on, the quest that runs), Loom (its agents as stones), Record (every quest and its report) and Models, called Brains in Chronos's words (the brains, the sizes, the hardware and the card).
 
+Try it with no model at all: `npm run mock`, then open http://127.0.0.1:7779/ (`npm run mock -- --seed --cycle` starts with finished quests and sends a new one every 40 s, so the face goes through every state).
+
 | Dark | Phone |
 | --- | --- |
 | ![The same Now view in dark mode: the face working, the quest with its split, the steps so far and the three brains](docs/media/readme/lite-dark-1440.png) | ![Chronos Lite on a 390 px phone in dark mode: the face as a strip on top, the ask, and the running quest: the Titan's plan, three steps and the two Offspring from a split](docs/media/readme/lite-phone-390.png) |
