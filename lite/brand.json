@@ -1,0 +1,10 @@
+{
+  "about": "The white label. Set by the installer for a company, never by a visitor or a user. The service's name in /health and /capabilities comes from here; the built-on mark stays whatever the name.",
+  "name": "Chronos Lite",
+  "shortName": "Lite",
+  "accent": null,
+  "logo": null,
+  "builtOn": "built on Chronos",
+  "builtOnShownIn": ["health", "capabilities"],
+  "setBy": "installer"
+}
