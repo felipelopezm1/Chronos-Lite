@@ -32,7 +32,7 @@ import { Bus, corsHeaders, trustedOrigin } from "./bus.mjs";
 import { readCommit, startBeacon } from "./beacon.mjs";
 import { createCapabilities, editionCard, readEdition } from "./capabilities.mjs";
 import { readCardLock } from "./cardlock.mjs";
-import { cardHome, liteHome } from "./platform.mjs";
+import { cardHome, chronosHome, liteHome } from "./platform.mjs";
 import { describeSizes, normalSize, parseSizeMarker, resolveTier } from "./sizes.mjs";
 import { governorCan } from "./throttle.mjs";
 import { createRunner } from "./quests.mjs";
@@ -91,7 +91,7 @@ export function defaultHome() {
  * The senses and the brains, as modules: the real ones when their files are
  * there, else quiet stand-ins that say what is missing.
  */
-export async function loadModules({ root = ROOT, home = defaultHome(), bus, port, lockHome = null } = {}) {
+export async function loadModules({ root = ROOT, home = defaultHome(), bus, port, lockHome = null, reuseHome = null } = {}) {
   const missing = [];
   let hardware;
   try {
@@ -107,7 +107,9 @@ export async function loadModules({ root = ROOT, home = defaultHome(), bus, port
     // the port goes into the card lock, so another Chronos waiting for the card can say whose it is. Only main() names
     // lockHome (the full Chronos home, shared with every Chronos here: docs/decisions/0009); without it the lock stays
     // inside the home given, so a test never touches the real one
-    brains = new mod.Brains({ root, home, bus, port, ...(lockHome ? { cardHome: lockHome } : {}) });
+    // reuseHome (the full Chronos home, named by main() only) lends its engine and brains, read-only, when they are the
+    // pinned ones (docs/decisions/0019); without it nothing outside the home given is read
+    brains = new mod.Brains({ root, home, bus, port, reuseHome, ...(lockHome ? { cardHome: lockHome } : {}) });
   } catch (err) {
     if (err?.code !== "ERR_MODULE_NOT_FOUND") throw err;
     missing.push("brains.mjs");
@@ -336,7 +338,7 @@ export function createServer({ root = ROOT, home = null, lockHome = null, port =
     return hashNow;
   };
 
-  const brainSummary = () => regularBrains().map((b) => ({ id: b.id, role: b.role, status: b.status, slot: b.slot ?? null, present: b.present !== false }));
+  const brainSummary = () => regularBrains().map((b) => ({ id: b.id, role: b.role, status: b.status, slot: b.slot ?? null, present: b.present !== false, where: b.where ?? null }));
 
   async function handle(req, res) {
     const url = new URL(req.url, `http://${host}:${port}`);
@@ -506,8 +508,10 @@ export async function main() {
   const port = Number(process.env.CHRONOS_LITE_PORT) || DEFAULT_PORT;
   const home = defaultHome();
   const lockHome = cardHome();
+  // CHRONOS_LITE_REUSE=0 turns reuse off: then only Lite's own home is read
+  const reuseHome = process.env.CHRONOS_LITE_REUSE === "0" ? null : chronosHome();
   const bus = new Bus();
-  const { hardware, brains, missing } = await loadModules({ root: ROOT, home, bus, port, lockHome });
+  const { hardware, brains, missing } = await loadModules({ root: ROOT, home, bus, port, lockHome, reuseHome });
   const workdir = path.resolve(process.env.CHRONOS_LITE_WORKDIR || path.join(home, "work"));
   fs.mkdirSync(workdir, { recursive: true });
   const runner = createRunner({ root: workdir, brains, hardware, bus });

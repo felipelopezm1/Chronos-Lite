@@ -20,3 +20,4 @@
 | [0016](0016-edition-quests-list-and-ui.md) | GET /edition, GET /quests and the UI's files take three slots | accepted |
 | [0017](0017-copyright-line.md) | The licence's copyright line names the Chronos Lite Authors | proposed |
 | [0018](0018-white-label-ui.md) | A white-label UI, written fresh | accepted |
+| [0019](0019-reuse-full-chronos-files.md) | Reuse a full Chronos's engine and brains in place, by sha256 | accepted |

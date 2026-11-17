@@ -27,7 +27,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readHardware, fits, RESERVE } from "./hardware.mjs";
 import { createGovernor, governorCan, junctionReader } from "./throttle.mjs";
-import { cardHome, engineFile, liteHome } from "./platform.mjs";
+import { cardHome, chronosHome, engineFile, liteHome } from "./platform.mjs";
+import { filesOf, readRecord, resolveEngineDir, resolveFile, RECORD } from "./models.mjs";
 import { execFile } from "node:child_process";
 import { sseData, thinkSplitter } from "./stream.mjs";
 import { postJson } from "./post.mjs";
@@ -179,7 +180,7 @@ export function threadArgs(brain, onGpu, budget = threadBudget()) {
 }
 
 export class Brains {
-  constructor({ root = PROJECT_ROOT, home, bus = quietBus, engineDir, gpuDevice, readJunction, startWaitMs = 120_000, restMs = 12_000, gpu = gpuControl, settleMs = 500, listDevices, vramTotalMiB, platform = process.platform, hasCard, port, cardLock, cardWait, cardPollMs, alive, cardHome: lockHome } = {}) {
+  constructor({ root = PROJECT_ROOT, home, bus = quietBus, engineDir, gpuDevice, readJunction, startWaitMs = 120_000, restMs = 12_000, gpu = gpuControl, settleMs = 500, listDevices, vramTotalMiB, platform = process.platform, hasCard, port, cardLock, cardWait, cardPollMs, alive, cardHome: lockHome, reuseHome } = {}) {
     this.platform = platform;
     this.readJunction = readJunction ?? junctionReader();
     this.startWaitMs = startWaitMs;
@@ -201,7 +202,12 @@ export class Brains {
     this.card = cardLock ?? createCardLock({ home: this.cardHome, port: port ?? (Number(process.env.CHRONOS_LITE_PORT) || null), what: "chronos-lite", waitMs: cardWait ?? cardWaitMs(), pollMs: cardPollMs ?? CARD_POLL_MS, alive: alive ?? pidAlive });
     // GPU starts of this process between taking the card and their engine being up: the lock stays while any runs
     this._cardStarts = 0;
-    this.engineDir = engineDir ?? path.join(this.home, "bin", "llama");
+    // the full Chronos home whose engine and brains are used in place, read-only, when they are the pinned build and
+    // files (runtime/models.mjs, docs/decisions/0019): named by main(), or the full home when no home is named at all;
+    // a caller that names only a home (a test) reuses nothing, so a test never reads the real one
+    this.reuseHome = reuseHome !== undefined ? reuseHome : home ? null : chronosHome();
+    this._engineDir = engineDir ?? null;
+    this._rec = { mtimeMs: -1, record: null };
     // the Vulkan device GPU brains are pinned to: an explicit index (gpuDevice, CHRONOS_GPU) wins; without one
     // the engine is asked for its devices at the first GPU start and the right one is picked (pickGpuDevice)
     this.gpuDevice = gpuDevice ?? process.env.CHRONOS_GPU ?? null;
@@ -448,6 +454,29 @@ export class Brains {
     return path.join(this.engineDir, engineFile(this.platform));
   }
 
+  /** the engine's folder: the one named, else Lite's own bin/llama, else the full Chronos one reuse.json vouches for */
+  get engineDir() {
+    return this._engineDir ?? resolveEngineDir({ home: this.home, reuseHome: this.reuseHome, record: this.record(), build: this.catalogue.engine?.build, platform: this.platform });
+  }
+
+  /** reuse.json under the home (runtime/models.mjs), read again only when it changed */
+  record() {
+    let mtimeMs = 0;
+    try {
+      mtimeMs = statSync(path.join(this.home, RECORD)).mtimeMs;
+    } catch {
+      /* no record */
+    }
+    if (mtimeMs !== this._rec.mtimeMs) this._rec = { mtimeMs, record: readRecord(this.home) };
+    return this._rec.record;
+  }
+
+  /** where a brain's file is: Lite's own, or a vouched-for one in the full Chronos home; { where, path } or null */
+  locate(brain, kind = "model") {
+    const f = filesOf(brain).find((x) => x.kind === kind);
+    return f ? resolveFile(f, { home: this.home, reuseHome: this.reuseHome, record: this.record() }) : null;
+  }
+
   /** { runs, why }: whether GPU brains run under the governor here, and why not when they do not (GET /health) */
   governorStatus() {
     return { ...this.governorState };
@@ -460,12 +489,12 @@ export class Brains {
   }
 
   modelPath(brain) {
-    return path.join(this.home, "models", brain.file);
+    return this.locate(brain)?.path ?? path.join(this.home, "models", brain.file);
   }
 
   /** the vision projector of a brain that has one in the catalogue (brain.mmproj), or null */
   mmprojPath(brain) {
-    return brain?.mmproj && brain.vision ? path.join(this.home, "models", brain.mmproj) : null;
+    return brain?.mmproj && brain.vision ? (this.locate(brain, "mmproj")?.path ?? path.join(this.home, "models", brain.mmproj)) : null;
   }
 
   /** whether the brain would see pictures if started now: it is a vision brain and its projector is on disk */
@@ -512,6 +541,8 @@ export class Brains {
         ...(brain.mmproj && brain.vision ? { mmproj: { file: brain.mmproj, present: !!this.mmprojPath(brain) && existsSync(this.mmprojPath(brain)) } } : {}),
         parallel: brain.parallel ?? 1,
         present: this.present(brain),
+        // whose copy it runs from: "lite" (its own home), "chronos" (the full Chronos home's, in place) or null
+        where: brain.file ? (this.locate(brain)?.where ?? null) : null,
         status: s?.status ?? "catalogue",
         pid: s?.pid ?? null,
         slot: alternate ? null : this.slotOf(brain.id),
