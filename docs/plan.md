@@ -18,7 +18,7 @@ Every quest is capped at 25 brain turns and its falls at a split depth of 2. The
 
 ## What is cut
 
-The l tier and the 27B, Colibri, media and attachments, chats, reading Hephaestus's record, the bridge and envoys, setup downloads (the installer does that instead), the ledger, the history across restarts, the full UI (face, loom, record), the desktop app, the clock tower and the Mac launcher.
+The l tier and the 27B, Colibri, media and attachments, chats, reading Hephaestus's record, the bridge and envoys, setup downloads (the installer, `scripts/install.sh`, does that instead), the ledger, the history across restarts, the full UI (face, loom, record), the desktop app, the clock tower and the Mac launcher.
 
 ## Living beside full Chronos
 
@@ -43,7 +43,7 @@ What was found while carving, and settled:
 1. **Founded.** The paper: the edition, the brand, the carry list, the plan, the decisions, the build map.
 2. **Scaffold.** package.json, the edition check, the sync check, CI on Linux and macOS.
 3. **The core carried.** The runtime copied from Chronos and cut at its seams; its tests on the Lite shape.
-4. **Install.** `scripts/install.sh`: the engine and the three brains into `~/.chronos-lite`, checked by sha256; a doctor; a short guide.
+4. **Install.** `scripts/install.sh`: the engine and the three brains into `~/.chronos-lite`, checked by sha256, reusing a full Chronos's files in place when they are the pinned ones (0019); a doctor; the `chronos-lite` command; a short guide (`docs/install.md`).
 5. **The first live run.** A size s and a size m quest on a real card beside a running full Chronos, the card lock proved between them.
 6. **A slim UI.** A page or two written fresh: the queue, a quest's events, its report.
 

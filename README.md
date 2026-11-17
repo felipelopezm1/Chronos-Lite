@@ -16,12 +16,26 @@
 
 Held in [lite/edition.json](lite/edition.json) and checked by `npm test`: 3 brains, sizes s and m, 1 card, 25 brain turns a quest, a fall split at most 2 deep, 8 tools. Anything new replaces something or takes a slot.
 
-## Run it
+## Install
 
-Node 22 or later, nothing to install.
+Linux or macOS, Node 22 or later, `curl` and `tar`; no sudo, and nothing is written outside `~/.chronos-lite`.
 
 ```sh
-npm test                 # the edition check, then every runtime test
+sh scripts/install.sh --dry-run   # every action it would take; touches nothing
+sh scripts/install.sh             # the engine and the three brains (--models minimal for the 0.8B alone, none for the engine only)
+~/.chronos-lite/bin/chronos-lite start
+chronos-lite ask "Count the stars" --size s
+npm run doctor                    # node, engine, each brain and where it is, ports, card lock, GPU
+```
+
+When a full Chronos is installed on the same computer, its engine and brains are used in place, read-only, when they are the build and files `forge/brains.json` pins by sha256; only what is missing is downloaded, resumably, and checked the same way. Nothing in the full Chronos home is ever written, moved or deleted. Every option and the `chronos-lite` command (start, stop, status, doctor, ask) are in [docs/install.md](docs/install.md).
+
+## Run it
+
+Node 22 or later, no npm packages.
+
+```sh
+npm test                 # the edition check, then every runtime and script test
 npm start                # the service on 127.0.0.1:7778
 curl -s localhost:7778/health
 npm run sync:check       # compare the carried files with a Chronos checkout (../chronos or CHRONOS_SRC)
@@ -50,10 +64,10 @@ A Hephaestus hires it as a wisp: post the quest, follow the events, read the rep
 ## Layout
 
 ```
-runtime/        the service, the runner, the workers, the brains, the senses, the card lock
+runtime/        the service, the runner, the workers, the brains, the model locator, the senses, the card lock
 forge/          brains.json: the three brains and the two tiers
 lite/           edition.json (the caps), brand.json (the white label), carry.json (what came from Chronos)
-scripts/        check-edition.mjs (npm test), sync-check.mjs
+scripts/        install.sh, doctor.mjs, chronos-lite.mjs (the command), check-edition.mjs (npm test), sync-check.mjs, mock-runtime.mjs
 docs/           the plan, the runtime API, the decisions, the build map
 ```
 
